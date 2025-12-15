@@ -439,7 +439,7 @@ export default function HomePage() {
                 <Textarea
                   id="message"
                   name="message"
-                  placeholder="Contame qué tipo de jabones o resinas estás buscando, cantidades aproximadas y fechas."
+                  placeholder="Contanos qué tipo de jabones o resinas estás buscando, cantidades aproximadas y fechas."
                   rows={4}
                 />
               </div>
@@ -452,7 +452,7 @@ export default function HomePage() {
               </Button>
 
               <p className="text-[11px] leading-relaxed text-slate-500">
-                Respondo normalmente en menos de 24 horas. Los pedidos
+                Respondemos normalmente en menos de 24 horas. Los pedidos
                 personalizados requieren al menos 7 días de anticipación.
               </p>
             </form>

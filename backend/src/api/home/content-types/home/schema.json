@@ -1,0 +1,40 @@
+{
+  "kind": "singleType",
+  "collectionName": "homes",
+  "info": {
+    "singularName": "home",
+    "pluralName": "homes",
+    "displayName": "Home"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "minLength": 5,
+      "required": true
+    },
+    "description": {
+      "type": "blocks",
+      "required": true
+    },
+    "cover": {
+      "type": "media",
+      "multiple": true,
+      "required": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "carousel": {
+      "type": "component",
+      "component": "shared.carousel",
+      "repeatable": false
+    }
+  }
+}

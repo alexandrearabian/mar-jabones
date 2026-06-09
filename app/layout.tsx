@@ -1,5 +1,9 @@
+// Root layout with SEO metadata and global providers
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SessionProvider } from "@/components/providers/session-provider";
+import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,9 +17,38 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mar Jabones - Jabones y resinas artesanales",
+  title: {
+    default: "Mar Jabones - Jabones y Resinas Artesanales",
+    template: "%s | Mar Jabones",
+  },
   description:
-    "Jabones artesanales y piezas de resina inspiradas en el mar, hechos a mano con mucho cariño.",
+    "Jabones y resinas artesanales inspirados en el mar. Piezas únicas hechas a mano.",
+  keywords: [
+    "jabones artesanales",
+    "resinas",
+    "productos naturales",
+    "caribe",
+    "hecho a mano",
+  ],
+  authors: [{ name: "Mar Jabones" }],
+  openGraph: {
+    type: "website",
+    locale: "es_AR",
+    url: process.env.NEXTAUTH_URL || "https://marjabones.com",
+    siteName: "Mar Jabones",
+    title: "Mar Jabones - Jabones y Resinas Artesanales",
+    description:
+      "Jabones y resinas artesanales inspirados en el mar. Piezas únicas hechas a mano.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mar Jabones",
+    description: "Jabones y resinas artesanales inspirados en el mar",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
@@ -28,7 +61,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <SessionProvider>
+          <Toaster>
+            {children}
+          </Toaster>
+        </SessionProvider>
       </body>
     </html>
   );

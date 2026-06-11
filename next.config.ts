@@ -11,12 +11,22 @@ function strapiRemotePatterns(): NonNullable<NextConfig["images"]>["remotePatter
     if (u.hostname === "localhost") hostnames.add("127.0.0.1");
     if (u.hostname === "127.0.0.1") hostnames.add("localhost");
 
-    return [...hostnames].map((hostname) => ({
-      protocol,
-      hostname,
-      ...port,
-      pathname: "/uploads/**",
-    }));
+    // Strapi Cloud serves media from a separate CDN host (*.media.strapiapp.com).
+    if (u.hostname.endsWith(".strapiapp.com") && !u.hostname.includes(".media.")) {
+      hostnames.add(u.hostname.replace(".strapiapp.com", ".media.strapiapp.com"));
+    }
+
+    return [...hostnames].flatMap((hostname) => {
+      const isMediaCdn = hostname.endsWith(".media.strapiapp.com");
+      return [
+        {
+          protocol,
+          hostname,
+          ...port,
+          pathname: isMediaCdn ? "/**" : "/uploads/**",
+        },
+      ];
+    });
   } catch {
     return [];
   }

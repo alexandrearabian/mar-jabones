@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Mar Jabones - Jabones y Resinas Artesanales",
-    template: "%s | Mar Jabones",
+    default: "Mar D Jabones - Jabones y Resinas Artesanales",
+    template: "%s | Mar D Jabones",
   },
   description:
     "Jabones y resinas artesanales inspirados en el mar. Piezas únicas hechas a mano.",
@@ -30,24 +30,29 @@ export const metadata: Metadata = {
     "caribe",
     "hecho a mano",
   ],
-  authors: [{ name: "Mar Jabones" }],
+  authors: [{ name: "Mar D Jabones" }],
   openGraph: {
     type: "website",
     locale: "es_AR",
     url: process.env.NEXTAUTH_URL || "https://marjabones.com",
-    siteName: "Mar Jabones",
-    title: "Mar Jabones - Jabones y Resinas Artesanales",
+    siteName: "Mar D Jabones",
+    title: "Mar D Jabones - Jabones y Resinas Artesanales",
     description:
       "Jabones y resinas artesanales inspirados en el mar. Piezas únicas hechas a mano.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mar Jabones",
+    title: "Mar D Jabones",
     description: "Jabones y resinas artesanales inspirados en el mar",
   },
   robots: {
     index: true,
     follow: true,
+  },
+  icons: {
+    icon: "/logo-mar.jpg",
+    shortcut: "/logo-mar.jpg",
+    apple: "/logo-mar.jpg",
   },
 };
 

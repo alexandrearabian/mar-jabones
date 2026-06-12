@@ -11,7 +11,7 @@ export const metadata = {
 export default function AboutPage() {
   return (
     <AboutVideoHero>
-      <AboutContent />
+      <AboutContent/>
     </AboutVideoHero>
   );
 }

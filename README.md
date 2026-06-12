@@ -1,4 +1,4 @@
-# Mar Jabones - Ecommerce Platform
+# Mar D Jabones - Ecommerce Platform
 
 Production-ready ecommerce web application built with Next.js, TypeScript, PostgreSQL, and Prisma.
 
@@ -188,4 +188,4 @@ bun run db:migrate
 
 ## License
 
-Private - Mar Jabones
+Private - Mar D Jabones

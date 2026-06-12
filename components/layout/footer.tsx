@@ -33,7 +33,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-4 sm:col-span-2 lg:col-span-1">
-            <p className="text-lg font-semibold tracking-tight">Mar Jabones</p>
+            <p className="text-lg font-semibold tracking-tight">Mar D Jabones</p>
             <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
               Jabones y resinas artesanales inspirados en el mar. Piezas únicas hechas a mano.
             </p>
@@ -95,7 +95,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 border-t border-border/60 pt-8 text-center text-sm text-muted-foreground">
-          <p>© {currentYear} Mar Jabones. Todos los derechos reservados.</p>
+          <p>© {currentYear} Mar D Jabones. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>

@@ -64,7 +64,7 @@ export function AboutVideoHero({ children }: AboutVideoHeroProps) {
               loop
               playsInline
               className="h-full w-full object-cover"
-              aria-label="Video sobre Mar Jabones"
+              aria-label="Video sobre Mar D Jabones"
             >
               <source src={ABOUT_VIDEO_SRC} type="video/mp4" />
             </video>

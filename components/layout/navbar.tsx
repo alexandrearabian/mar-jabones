@@ -6,8 +6,12 @@ import { User, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
+
+const subscribeNoop = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 const HEADER_OFFSET = "4.5rem";
 
@@ -48,20 +52,13 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [productsMenuOpen, setProductsMenuOpen] = useState(false);
   const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(subscribeNoop, getClientSnapshot, getServerSnapshot);
 
   const isAuthenticated = status === "authenticated";
   const isLoading = status === "loading";
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mobileMenuOpen) {
-      setMobileProductsOpen(false);
-      return;
-    }
+    if (!mobileMenuOpen) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
@@ -69,7 +66,18 @@ export function Navbar() {
     };
   }, [mobileMenuOpen]);
 
-  const closeMobileMenu = () => setMobileMenuOpen(false);
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+    setMobileProductsOpen(false);
+  };
+
+  const toggleMobileMenu = () => {
+    if (mobileMenuOpen) {
+      closeMobileMenu();
+      return;
+    }
+    setMobileMenuOpen(true);
+  };
 
   const mobileMenu = (
     <AnimatePresence>
@@ -239,7 +247,7 @@ export function Navbar() {
               whileTap={{ scale: 0.97 }}
               className="text-2xl font-semibold tracking-tight"
             >
-              Mar Jabones
+              Mar D Jabones
             </motion.span>
           </Link>
 
@@ -325,7 +333,7 @@ export function Navbar() {
               variant="ghost"
               size="icon"
               className="md:hidden"
-              onClick={() => setMobileMenuOpen((open) => !open)}
+              onClick={toggleMobileMenu}
               aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
               aria-expanded={mobileMenuOpen}
             >

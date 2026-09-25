@@ -1,19 +1,5 @@
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
-import { PageTransition } from "@/components/layout/page-transition";
+import { SiteShell } from "@/components/layout/site-shell";
 
-export default function ShopLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex min-h-dvh flex-col">
-      <Navbar />
-      <main className="flex-1">
-        <PageTransition>{children}</PageTransition>
-      </main>
-      <Footer />
-    </div>
-  );
+export default function SiteLayout({ children }: { children: React.ReactNode }) {
+  return <SiteShell>{children}</SiteShell>;
 }

@@ -1,13 +1,10 @@
-// Social icons component with motion animations
-// Client component for motion interactions
-// Accepts icon names as strings to avoid serialization issues
-
 "use client";
+
+// Icons are passed by name: components can't cross the server/client boundary as props
 
 import { motion } from "motion/react";
 import { Instagram, Facebook, Mail, LucideIcon } from "lucide-react";
 
-// Map icon names to icon components
 const iconMap: Record<string, LucideIcon> = {
   instagram: Instagram,
   facebook: Facebook,
@@ -17,7 +14,7 @@ const iconMap: Record<string, LucideIcon> = {
 interface SocialLink {
   href: string;
   label: string;
-  iconName: string; // Changed from icon to iconName
+  iconName: string;
 }
 
 interface SocialIconsProps {
@@ -26,7 +23,7 @@ interface SocialIconsProps {
 
 export function SocialIcons({ links }: SocialIconsProps) {
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-2">
       {links.map((social) => {
         const Icon = iconMap[social.iconName];
         if (!Icon) return null;
@@ -38,11 +35,12 @@ export function SocialIcons({ links }: SocialIconsProps) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={social.label}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-muted-foreground transition-colors hover:text-foreground"
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.94 }}
+            transition={{ type: "spring", stiffness: 400, damping: 22 }}
+            className="flex size-10 items-center justify-center rounded-full bg-background text-muted-foreground ring-1 ring-foreground/5 transition-colors duration-300 hover:text-primary"
           >
-            <Icon className="h-5 w-5" />
+            <Icon className="size-[18px]" strokeWidth={1.5} />
           </motion.a>
         );
       })}

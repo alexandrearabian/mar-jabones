@@ -1,113 +1,45 @@
-"use client";
-
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { motion } from "motion/react";
-import {
-  formatProductPrice,
-  hasProductPrice,
-  INSTAGRAM_HANDLE,
-} from "@/lib/shop/product-pricing";
+import { Award } from "lucide-react";
+import { SanityImage } from "@/components/sanity-image";
+import type { ProductSummary } from "@/sanity/queries";
 
-interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  price?: number;
-  compareAtPrice?: number;
-  image?: string;
-  category?: string;
-  shortDescriptionText?: string;
-}
-
-interface ProductCardProps {
-  product: Product;
-  index?: number;
-}
-
-export function ProductCard({ product, index = 0 }: ProductCardProps) {
-  const showPrice = hasProductPrice(product.price);
-  const hasDiscount =
-    showPrice &&
-    product.compareAtPrice !== undefined &&
-    product.compareAtPrice > product.price!;
-  const discountPercent = hasDiscount
-    ? Math.round(
-        ((product.compareAtPrice! - product.price!) / product.compareAtPrice!) * 100,
-      )
-    : 0;
+export function ProductCard({ product }: { product: ProductSummary }) {
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.04, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -3 }}
-      className="group h-full"
-    >
-      <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-shadow duration-300 hover:shadow-md">
-        <Link href={`/productos/${product.slug}`} className="block">
+    <article className="group h-full">
+      <Link
+        href={`/productos/${product.slug}`}
+        className="block h-full rounded-[1.75rem] bg-foreground/[0.03] p-1.5 ring-1 ring-foreground/5 transition-[box-shadow,transform] duration-700 ease-(--ease-fluid) group-hover:-translate-y-1 group-hover:shadow-(--shadow-lift)"
+      >
+        <div className="flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-0.375rem)] bg-card shadow-[inset_0_1px_1px_oklch(1_0_0/0.6)]">
           <div className="relative aspect-4/5 w-full overflow-hidden bg-muted">
             {product.image ? (
-              // Plain img — reliable for local Strapi URLs in dev
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={product.image}
-                alt={product.name}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                loading="lazy"
+              <SanityImage
+                image={product.image}
+                fill
+                sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, 50vw"
+                className="object-cover transition-transform duration-[1200ms] ease-(--ease-fluid) group-hover:scale-[1.06]"
               />
             ) : (
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
                 Sin imagen
               </div>
             )}
-            {hasDiscount && (
-              <Badge variant="destructive" className="absolute right-2.5 top-2.5">
-                -{discountPercent}%
-              </Badge>
-            )}
           </div>
-        </Link>
 
-        <div className="flex flex-1 flex-col gap-2 px-4 py-4 sm:px-5 sm:py-5">
-          <Link href={`/productos/${product.slug}`}>
+          <div className="flex flex-1 flex-col gap-1.5 px-4 py-4 sm:px-5 sm:py-5">
             <h3 className="text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-base">
               {product.name}
             </h3>
-          </Link>
-
-          {product.shortDescriptionText ? (
-            <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-              {product.shortDescriptionText}
-            </p>
-          ) : null}
-
-          <div className="mt-auto pt-1">
-            {showPrice ? (
-              <div className="flex items-baseline gap-2">
-                <p className="text-sm font-semibold text-foreground sm:text-base">
-                  {formatProductPrice(product.price!)}
-                </p>
-                {hasDiscount && (
-                  <p className="text-xs text-muted-foreground line-through sm:text-sm">
-                    {formatProductPrice(product.compareAtPrice!)}
-                  </p>
-                )}
-              </div>
-            ) : (
-              <Link
-                href={`https://ig.me/m/${INSTAGRAM_HANDLE}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs font-medium text-primary transition-colors hover:underline sm:text-sm"
-                onClick={(e) => e.stopPropagation()}
-              >
-                Consultar por Instagram
-              </Link>
-            )}
+            <p className="text-xs text-muted-foreground sm:text-sm">{product.category.name}</p>
+            {product.award ? (
+              <p className="mt-auto flex items-center gap-1.5 pt-2 text-xs font-medium text-primary">
+                <Award className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden />
+                {product.award}
+              </p>
+            ) : null}
           </div>
         </div>
-      </div>
-    </motion.article>
+      </Link>
+    </article>
   );
 }

@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Legacy Strapi app, not part of the Next.js build
+    "backend/**",
   ]),
 ]);
 

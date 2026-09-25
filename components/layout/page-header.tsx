@@ -20,23 +20,24 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <motion.header
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, amount: 0.4 }}
+      transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
         "mb-10 sm:mb-12",
         align === "center" ? "text-center" : "text-left",
         className,
       )}
     >
-      <Heading className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+      <Heading className="text-4xl font-semibold tracking-tighter text-foreground sm:text-5xl lg:text-6xl">
         {title}
       </Heading>
       {subtitle ? (
         <p
           className={cn(
-            "mt-3 text-base leading-relaxed text-muted-foreground sm:text-lg",
-            align === "center" && "mx-auto max-w-2xl",
+            "mt-4 max-w-[60ch] text-base leading-relaxed text-muted-foreground sm:text-lg",
+            align === "center" && "mx-auto",
           )}
         >
           {subtitle}

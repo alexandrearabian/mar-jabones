@@ -8,7 +8,8 @@ import {
   useTransform,
 } from "motion/react";
 
-const ABOUT_VIDEO_SRC = encodeURI("/WhatsApp Video 2026-05-28 at 15.31.19.mp4");
+const ABOUT_VIDEO_SRC = "/videos/sobre-nosotros.mp4";
+const ABOUT_VIDEO_POSTER = "/videos/sobre-nosotros.jpg";
 
 interface AboutVideoHeroProps {
   children: React.ReactNode;
@@ -47,13 +48,13 @@ export function AboutVideoHero({ children }: AboutVideoHeroProps) {
   );
 
   return (
-    <section className="relative">
+    <section className="relative px-3 pt-3 sm:px-4">
       {/* Scroll runway = hero height + small extra for parallax (no empty gap) */}
       <div
         ref={heroRef}
         className="relative h-[calc(52vh+5rem)] min-h-[360px] max-h-[560px] sm:h-[calc(58vh+5rem)] sm:max-h-[600px]"
       >
-        <div className="sticky top-0 h-[52vh] min-h-[280px] max-h-[480px] overflow-hidden bg-black sm:h-[58vh] sm:max-h-[520px]">
+        <div className="sticky top-0 h-[52vh] min-h-[280px] max-h-[480px] overflow-hidden rounded-[2rem] bg-foreground sm:h-[58vh] sm:max-h-[520px]">
           <motion.div
             className="absolute inset-0 -top-[8%] h-[116%] w-full"
             style={{ y: videoY, scale: videoScale }}
@@ -63,6 +64,7 @@ export function AboutVideoHero({ children }: AboutVideoHeroProps) {
               muted
               loop
               playsInline
+              poster={ABOUT_VIDEO_POSTER}
               className="h-full w-full object-cover"
               aria-label="Video sobre Mar D Jabones"
             >
@@ -71,7 +73,7 @@ export function AboutVideoHero({ children }: AboutVideoHeroProps) {
           </motion.div>
 
           <motion.div
-            className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-black/10"
+            className="absolute inset-0 bg-linear-to-t from-foreground/85 via-foreground/30 to-foreground/5"
             style={{ opacity: overlayOpacity }}
           />
 
@@ -80,22 +82,32 @@ export function AboutVideoHero({ children }: AboutVideoHeroProps) {
             style={{ y: titleY, opacity: titleOpacity }}
           >
             <div className="mx-auto max-w-5xl">
-              <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
+              <motion.h1
+                initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="text-4xl font-semibold tracking-tighter text-white sm:text-5xl lg:text-6xl"
+              >
                 Sobre nosotros
-              </h1>
-              <p className="mt-3 max-w-2xl text-base text-white/90 sm:text-lg">
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="mt-3 max-w-2xl text-base text-white/90 sm:text-lg"
+              >
                 Somos un equipo apasionado por crear piezas artesanales inspiradas en el mar.
-              </p>
+              </motion.p>
             </div>
           </motion.div>
         </div>
       </div>
 
       <motion.div
-        className="relative z-10 -mt-20 rounded-t-3xl bg-background shadow-[0_-16px_32px_-10px_rgba(0,0,0,0.15)]"
+        className="relative z-10 -mt-20 rounded-t-[2rem] bg-background shadow-[0_-24px_48px_-24px_oklch(0.25_0.05_240/0.25)]"
         style={{ y: contentY }}
       >
-        <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">{children}</div>
+        <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">{children}</div>
       </motion.div>
     </section>
   );

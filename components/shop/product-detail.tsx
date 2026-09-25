@@ -1,180 +1,91 @@
-// Product detail component
-// Displays full product information with optional price and Instagram inquiry CTA
-
-"use client";
-
-import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Award, Check, Instagram } from "lucide-react";
+import { Reveal } from "@/components/motion/reveal";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Instagram } from "lucide-react";
-import type { BlocksContent } from "@strapi/blocks-react-renderer";
-import { BlocksRenderer } from "@strapi/blocks-react-renderer";
-import { isPrivateOrLocalUrl } from "@/lib/is-private-url";
-import {
-  formatProductPrice,
-  hasProductPrice,
-  INSTAGRAM_HANDLE,
-} from "@/lib/shop/product-pricing";
+import { Button } from "@/components/ui/button";
+import { site } from "@/lib/site";
+import type { Product } from "@/sanity/queries";
+import { ProductGallery } from "./product-gallery";
 
-interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  description: BlocksContent | null;
-  price?: number;
-  compareAtPrice?: number;
-  images: string[];
-  category?: { name: string | null; slug: string | null } | null;
-  stock: number;
-  size?: string | null;
-  color?: string | null;
-}
+const NOTES = [
+  "Consultá disponibilidad y precio por Instagram",
+  "Producto artesanal hecho a mano",
+  "Podés personalizar tamaño y color según disponibilidad",
+];
 
-interface ProductDetailProps {
-  slug: string;
-  product?: Product | null;
-}
-
-export function ProductDetail({ product: productProp }: ProductDetailProps) {
-  const [product] = useState<Product | null>(productProp ?? null);
-  const [selectedImage, setSelectedImage] = useState(0);
-
-  if (!product) {
-    return (
-      <div className="py-12 text-center">
-        <p className="text-muted-foreground">Producto no encontrado</p>
-      </div>
-    );
-  }
-
-  const showPrice = hasProductPrice(product.price);
-  const hasDiscount =
-    showPrice &&
-    product.compareAtPrice !== undefined &&
-    product.compareAtPrice > product.price!;
-  const bypassOptimization =
-    product.images[selectedImage] ? isPrivateOrLocalUrl(product.images[selectedImage]) : false;
-  const instagramUrl = `https://ig.me/m/${INSTAGRAM_HANDLE}`;
-
+export function ProductDetail({ product }: { product: Product }) {
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-      {/* Product Images */}
-      <div>
-        <div className="relative aspect-square w-full overflow-hidden rounded-lg border bg-muted">
-          {product.images[selectedImage] ? (
-            <Image
-              src={product.images[selectedImage]}
-              alt={product.name}
-              fill
-              className="object-cover"
-              priority
-              unoptimized={bypassOptimization}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-muted-foreground">
-              Sin imagen
-            </div>
-          )}
-        </div>
-        {product.images.length > 1 && (
-          <div className="mt-4 grid grid-cols-4 gap-4">
-            {product.images.map((image, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedImage(index)}
-                className={`relative aspect-square overflow-hidden rounded-lg border-2 transition-all ${
-                  selectedImage === index
-                    ? "border-primary"
-                    : "border-border hover:border-muted"
-                }`}
-              >
-                <Image
-                  src={image}
-                  alt={`${product.name} - Vista ${index + 1}`}
-                  fill
-                  className="object-cover"
-                  unoptimized={isPrivateOrLocalUrl(image)}
-                />
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+    <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-16">
+      <Reveal className="lg:col-span-7">
+        <ProductGallery images={product.images} />
+      </Reveal>
 
-      {/* Product Info */}
-      <div>
-        {product.category?.name && (
-          <Badge variant="secondary" className="mb-4">
-            {product.category.name}
-          </Badge>
-        )}
-
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          {product.name}
-        </h1>
-
-        {showPrice ? (
-          <div className="mt-4">
-            <div className="flex items-baseline gap-3">
-              <p className="text-3xl font-semibold">{formatProductPrice(product.price!)}</p>
-              {hasDiscount && (
-                <>
-                  <p className="text-xl text-muted-foreground line-through">
-                    {formatProductPrice(product.compareAtPrice!)}
-                  </p>
-                  <Badge variant="destructive">
-                    {Math.round(
-                      ((product.compareAtPrice! - product.price!) / product.compareAtPrice!) * 100,
-                    )}
-                    % OFF
-                  </Badge>
-                </>
-              )}
-            </div>
-          </div>
-        ) : null}
-
-        <div className="mt-6">
-          {product.description && product.description.length > 0 ? (
-            <div className="text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-foreground [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-foreground [&_h2]:mt-6 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-foreground [&_h3]:mt-5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-foreground [&_ol]:ml-5 [&_ol]:list-decimal [&_p]:leading-relaxed [&_ul]:ml-5 [&_ul]:list-disc">
-              <BlocksRenderer content={product.description} />
-            </div>
+      <div className="self-start lg:sticky lg:top-24 lg:col-span-5 lg:pt-4">
+        <Reveal delay={0.1}>
+          <Link href={`/productos/${product.category.slug}`}>
+            <Badge className="mb-5 transition-colors hover:bg-accent">{product.category.name}</Badge>
+          </Link>
+          <h1 className="text-4xl font-semibold leading-[1.05] tracking-tighter text-foreground sm:text-5xl">
+            {product.name}
+          </h1>
+          {product.award ? (
+            <p className="mt-4 flex items-center gap-2 text-sm font-medium text-primary">
+              <Award className="size-4 shrink-0" strokeWidth={1.75} aria-hidden />
+              {product.award}
+            </p>
           ) : null}
-        </div>
+        </Reveal>
 
-        {product.size || product.color ? (
-          <div className="mt-6 flex flex-wrap gap-2">
-            {product.size ? <Badge variant="outline">Tamaño: {product.size}</Badge> : null}
-            {product.color ? <Badge variant="outline">Color: {product.color}</Badge> : null}
-          </div>
+        {product.sizes?.length || product.ingredients ? (
+          <Reveal delay={0.2}>
+            <dl className="mt-8 space-y-5 text-sm">
+              {product.sizes?.length ? (
+                <div>
+                  <dt className="mb-2 font-medium text-foreground">Tamaños</dt>
+                  <dd className="flex flex-wrap gap-2">
+                    {product.sizes.map((size) => (
+                      <Badge key={size} variant="outline">
+                        {size}
+                      </Badge>
+                    ))}
+                  </dd>
+                </div>
+              ) : null}
+              {product.ingredients ? (
+                <div>
+                  <dt className="mb-1 font-medium text-foreground">Ingredientes</dt>
+                  <dd className="max-w-[60ch] leading-relaxed text-muted-foreground">{product.ingredients}</dd>
+                </div>
+              ) : null}
+            </dl>
+          </Reveal>
         ) : null}
 
-        <div className="mt-8">
-          <Button asChild size="lg" className="w-full sm:w-auto">
-            <Link href={instagramUrl} target="_blank" rel="noopener noreferrer">
-              <Instagram className="size-5" />
+        <Reveal delay={0.3} className="mt-8">
+          <Button asChild size="lg" className="group w-full sm:w-auto">
+            <a href={site.instagram.messageUrl} target="_blank" rel="noopener noreferrer">
+              <Instagram
+                className="size-5 transition-transform duration-500 ease-(--ease-fluid) group-hover:-rotate-6 group-hover:scale-110"
+                strokeWidth={1.75}
+              />
               Consultar por Instagram
-            </Link>
+            </a>
           </Button>
-        </div>
+        </Reveal>
 
-        <Card className="mt-8">
-          <CardContent className="pt-6">
-            <h3 className="mb-2 font-semibold">Información adicional</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              {showPrice ? (
-                <li>• También podés consultar disponibilidad por Instagram</li>
-              ) : (
-                <li>• Consultá disponibilidad y precio por Instagram</li>
-              )}
-              <li>• Producto artesanal hecho a mano</li>
-              <li>• Podés personalizar tamaño y color según disponibilidad</li>
-            </ul>
-          </CardContent>
-        </Card>
+        <Reveal delay={0.4} className="mt-10 border-t border-border/70 pt-8">
+          <h2 className="mb-4 text-sm font-semibold text-foreground">Información adicional</h2>
+          <ul className="space-y-3 text-sm text-muted-foreground">
+            {NOTES.map((note) => (
+              <li key={note} className="flex items-start gap-3">
+                <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Check className="size-3" strokeWidth={2.25} />
+                </span>
+                {note}
+              </li>
+            ))}
+          </ul>
+        </Reveal>
       </div>
     </div>
   );

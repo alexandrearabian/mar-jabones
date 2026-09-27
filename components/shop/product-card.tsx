@@ -1,45 +1,64 @@
 import Link from "next/link";
-import { Award } from "lucide-react";
+import { ArrowUpRight, Award } from "lucide-react";
 import { SanityImage } from "@/components/sanity-image";
 import type { ProductSummary } from "@/sanity/queries";
+import { cn } from "@/lib/utils";
 
-export function ProductCard({ product }: { product: ProductSummary }) {
+/** Shared card surface: every card on the site lifts on hover; photos never zoom. */
+export const cardSurface =
+  "flex h-full flex-col rounded-[1.5rem] bg-card p-2 shadow-[0_0_0_1px_oklch(0.26_0.045_235/0.06),var(--shadow-soft)] outline-none transition-[transform,box-shadow] duration-700 ease-(--ease-fluid) hover:-translate-y-1 hover:shadow-[0_0_0_1px_oklch(0.26_0.045_235/0.1),var(--shadow-lift)] focus-visible:ring-2 focus-visible:ring-ring";
+
+/** Arrow chip in the card's caption; turns ocean blue when the card is hovered. */
+export function CardArrow({ className }: { className?: string }) {
   return (
-    <article className="group h-full">
-      <Link
-        href={`/productos/${product.slug}`}
-        className="block h-full rounded-[1.75rem] bg-foreground/[0.03] p-1.5 ring-1 ring-foreground/5 transition-[box-shadow,transform] duration-700 ease-(--ease-fluid) group-hover:-translate-y-1 group-hover:shadow-(--shadow-lift)"
-      >
-        <div className="flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-0.375rem)] bg-card shadow-[inset_0_1px_1px_oklch(1_0_0/0.6)]">
-          <div className="relative aspect-4/5 w-full overflow-hidden bg-muted">
-            {product.image ? (
-              <SanityImage
-                image={product.image}
-                fill
-                sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, 50vw"
-                className="object-cover transition-transform duration-[1200ms] ease-(--ease-fluid) group-hover:scale-[1.06]"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                Sin imagen
-              </div>
-            )}
-          </div>
+    <span
+      aria-hidden
+      className={cn(
+        "grid size-8 shrink-0 place-items-center rounded-full bg-sand text-foreground transition-[background-color,color,transform] duration-500 ease-(--ease-fluid) group-hover/card:translate-x-0.5 group-hover/card:bg-primary group-hover/card:text-primary-foreground sm:size-9",
+        className,
+      )}
+    >
+      <ArrowUpRight className="size-4" strokeWidth={1.75} />
+    </span>
+  );
+}
 
-          <div className="flex flex-1 flex-col gap-1.5 px-4 py-4 sm:px-5 sm:py-5">
-            <h3 className="text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-base">
-              {product.name}
-            </h3>
-            <p className="text-xs text-muted-foreground sm:text-sm">{product.category.name}</p>
-            {product.award ? (
-              <p className="mt-auto flex items-center gap-1.5 pt-2 text-xs font-medium text-primary">
-                <Award className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden />
-                {product.award}
-              </p>
-            ) : null}
-          </div>
+interface ProductCardProps {
+  product: ProductSummary;
+  /** Rendered width of the photo, for the srcset. */
+  sizes: string;
+  /** Photo box classes; defaults to a 4:5 portrait. */
+  photoClassName?: string;
+  showCategory?: boolean;
+  /** Above-the-fold cards load first. */
+  priority?: boolean;
+}
+
+export function ProductCard({ product, sizes, photoClassName, showCategory = true, priority }: ProductCardProps) {
+  return (
+    <Link href={`/productos/${product.slug}`} className={cn("group/card", cardSurface)}>
+      <div className={cn("relative overflow-hidden rounded-[1rem] bg-sand", photoClassName ?? "aspect-[4/5]")}>
+        {product.image ? <SanityImage image={product.image} sizes={sizes} priority={priority} /> : null}
+      </div>
+      <div className="flex flex-1 items-end justify-between gap-3 px-2 pb-1.5 pt-3.5 sm:px-2.5 sm:pt-4">
+        <div className="min-w-0">
+          <h3 className="font-display text-base font-semibold leading-snug sm:text-lg">{product.name}</h3>
+          {showCategory || product.award ? (
+            <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
+              {showCategory ? product.category.name : null}
+              {/* Full prize name lives on the product page; the card only flags it */}
+              {product.award ? (
+                <span title={product.award} className="inline-flex items-center gap-1 text-primary">
+                  <Award className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden />
+                  <span className="sr-only">{product.award}</span>
+                  {showCategory ? null : "Premiado"}
+                </span>
+              ) : null}
+            </p>
+          ) : null}
         </div>
-      </Link>
-    </article>
+        <CardArrow />
+      </div>
+    </Link>
   );
 }

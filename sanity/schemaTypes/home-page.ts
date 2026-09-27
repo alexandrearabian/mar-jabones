@@ -31,6 +31,15 @@ export const homePage = defineType({
       of: [defineArrayMember({ type: "imageWithAlt" })],
       validation: (rule) => rule.required().min(1),
     }),
+    defineField({
+      name: "featured",
+      title: "Destacados",
+      description:
+        "Hasta 4 productos para la sección Destacados. Si queda vacío, se muestran los premiados y los que tienen más fotos.",
+      type: "array",
+      of: [defineArrayMember({ type: "reference", to: [{ type: "product" }] })],
+      validation: (rule) => rule.max(4).unique(),
+    }),
   ],
   preview: { prepare: () => ({ title: "Página de inicio" }) },
 });

@@ -7,20 +7,23 @@ import { getCategories, getProducts } from "@/sanity/queries";
 
 export const metadata: Metadata = {
   title: "Productos",
-  description: "Explorá toda nuestra colección de jabones y resinas artesanales.",
+  description: "Todos mis jabones y resinas artesanales, hechos a mano en Buenos Aires.",
 };
 
 export default async function ProductosPage() {
   const [products, categories] = await Promise.all([getProducts(), getCategories()]);
 
   return (
-    <PageShell>
+    <>
       <PageHeader
         title="Productos"
-        subtitle="Colección completa de jabones y resinas artesanales, hechos con dedicación."
-      />
-      <ProductFilters categories={categories} />
-      <ProductGrid products={products} />
-    </PageShell>
+        subtitle="Todos mis jabones y resinas, hechos a mano uno por uno."
+      >
+        <ProductFilters categories={categories} active={null} />
+      </PageHeader>
+      <PageShell belowHeader>
+        <ProductGrid products={products} priorityCount={4} />
+      </PageShell>
+    </>
   );
 }

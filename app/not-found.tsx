@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <SiteShell>
       <PageShell narrow className="py-24 text-center sm:py-32">
-        <h1 className="text-4xl font-semibold tracking-tighter sm:text-5xl">No encontramos esta página</h1>
+        <h1 className="heading-2">No encontramos esta página</h1>
         <p className="mx-auto mt-4 max-w-[45ch] text-muted-foreground">
           Puede que el producto ya no esté disponible o que la dirección tenga un error.
         </p>
@@ -15,7 +15,7 @@ export default function NotFound() {
           <Button asChild>
             <Link href="/productos">Ver productos</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="secondary">
             <Link href="/">Ir al inicio</Link>
           </Button>
         </div>

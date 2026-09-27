@@ -4,14 +4,18 @@ interface PageShellProps {
   children: React.ReactNode;
   className?: string;
   narrow?: boolean;
+  /** Directly after a <PageHeader>: leave room for its wave. */
+  belowHeader?: boolean;
 }
 
-export function PageShell({ children, className, narrow }: PageShellProps) {
+/** Standard page body: shared container and vertical rhythm. */
+export function PageShell({ children, className, narrow, belowHeader }: PageShellProps) {
   return (
     <div
       className={cn(
-        "mx-auto w-full px-4 py-12 sm:px-6 sm:py-16 lg:px-8",
-        narrow ? "max-w-3xl" : "max-w-7xl",
+        "container-page pb-20 md:pb-28",
+        belowHeader ? "pt-16 md:pt-24" : "pt-10 md:pt-16",
+        narrow && "max-w-4xl",
         className,
       )}
     >

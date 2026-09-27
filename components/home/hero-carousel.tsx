@@ -1,11 +1,15 @@
 "use client";
 
-import { Fragment, useState, useEffect } from "react";
-import { motion } from "motion/react";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { SanityImage } from "@/components/sanity-image";
+import { Button } from "@/components/ui/button";
+import { Wave } from "@/components/ui/wave";
 import type { SanityImage as SanityImageData } from "@/sanity/queries";
+import { cn } from "@/lib/utils";
+
+const SWIPE_PX = 50;
 
 interface HeroCarouselProps {
   title: string;
@@ -14,146 +18,159 @@ interface HeroCarouselProps {
   images: SanityImageData[];
 }
 
-const FADE_DURATION = 1.1;
-const EASE = [0.16, 1, 0.3, 1] as const;
-const AUTOPLAY_MS = 5000;
-
+/**
+ * Full-bleed crossfading hero that always cycles. The active progress bar's CSS animation is the timer:
+ * when it ends the next slide shows, holding a mouse button or finger down pauses it mid-way, and with
+ * "reduce motion" on (animations disabled in globals.css) it never ends, so the carousel stays put.
+ * Swipe, drag, trackpad, arrow keys and the controls all change slides.
+ */
 export function HeroCarousel({ title, eyebrow, description, images }: HeroCarouselProps) {
-  const [index, setIndex] = useState(0);
-  const activeIndex = images.length === 0 ? 0 : index % images.length;
+  const count = images.length;
+  const [active, setActive] = useState(0);
+  const [held, setHeld] = useState(false);
 
-  // Timeout keyed on the active slide so a manual jump restarts the countdown
-  useEffect(() => {
-    if (images.length <= 1) return;
-    const t = setTimeout(() => {
-      setIndex((prev) => (prev + 1) % images.length);
-    }, AUTOPLAY_MS);
-    return () => clearTimeout(t);
-  }, [activeIndex, images.length]);
+  // Load photos one slide ahead of the furthest one shown, instead of all at once
+  const [furthest, setFurthest] = useState(0);
+  if (active > furthest) setFurthest(active);
+
+  const show = useCallback((index: number) => setActive(((index % count) + count) % count), [count]);
+
+  const swipeStart = useRef<number | null>(null);
+  const lastWheel = useRef(0);
 
   const words = title.split(" ");
 
   return (
-    <section className="px-3 pt-3 sm:px-4" aria-roledescription="carousel" aria-label={title}>
-      <div className="relative h-[calc(100dvh-5.75rem)] max-h-[860px] min-h-[540px] w-full overflow-hidden rounded-[2rem] bg-foreground">
-        <div className="absolute inset-0" aria-hidden>
-          {images.map((image, i) => {
-            const isActive = i === activeIndex;
-            return (
-              <motion.div
-                key={image.url}
-                className="absolute inset-0"
-                initial={false}
-                animate={{ opacity: isActive ? 1 : 0, scale: isActive ? 1 : 1.08 }}
-                transition={{
-                  opacity: { duration: FADE_DURATION, ease: EASE },
-                  // Slow drift while the slide is on screen
-                  scale: { duration: AUTOPLAY_MS / 1000 + FADE_DURATION, ease: "easeOut" },
-                }}
-                style={{ zIndex: isActive ? 2 : 1 }}
-              >
-                <SanityImage image={image} fill priority={i === 0} sizes="100vw" className="object-cover" />
-              </motion.div>
-            );
-          })}
+    <section
+      aria-roledescription="carrusel"
+      aria-label={title}
+      className="relative isolate -mt-(--header-h) flex min-h-[100svh] touch-pan-y items-end overflow-hidden bg-deep"
+      onPointerDown={(e) => {
+        setHeld(true);
+        swipeStart.current = e.clientX;
+      }}
+      onPointerUp={(e) => {
+        setHeld(false);
+        if (swipeStart.current === null) return;
+        const dx = e.clientX - swipeStart.current;
+        swipeStart.current = null;
+        if (Math.abs(dx) > SWIPE_PX) show(active + (dx < 0 ? 1 : -1));
+      }}
+      onPointerCancel={() => setHeld(false)}
+      onPointerLeave={() => setHeld(false)}
+      onWheel={(e) => {
+        const now = Date.now();
+        if (Math.abs(e.deltaX) < 30 || Math.abs(e.deltaX) < Math.abs(e.deltaY) || now - lastWheel.current < 700) return;
+        lastWheel.current = now;
+        show(active + (e.deltaX > 0 ? 1 : -1));
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowRight") show(active + 1);
+        if (e.key === "ArrowLeft") show(active - 1);
+      }}
+    >
+      {images.map((image, i) => (
+        <div
+          key={image.url}
+          aria-hidden={i !== active}
+          className={cn(
+            "absolute inset-0 -z-20 overflow-hidden transition-opacity duration-1000 ease-(--ease-out-expo)",
+            i === active ? "opacity-100" : "opacity-0",
+          )}
+        >
+          {i <= furthest + 1 ? (
+            <SanityImage
+              image={image}
+              sizes="100vw"
+              priority={i === 0}
+              skeleton={false}
+              className={cn(i === active && "animate-[drift_7s_var(--ease-out-expo)_both]")}
+            />
+          ) : null}
         </div>
+      ))}
+      <div aria-hidden className="hero-spotlight absolute inset-0 -z-10" />
 
-        <div
-          className="pointer-events-none absolute inset-0 z-10 bg-linear-to-t from-foreground/80 via-foreground/20 to-transparent"
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_bottom_left,oklch(0.18_0.03_240/0.55),transparent_65%)]"
-          aria-hidden
-        />
-
-        <div className="absolute inset-0 z-20 flex items-end px-6 pb-24 sm:px-10 sm:pb-16 md:px-14 md:pb-20">
-          <div className="max-w-3xl text-left text-hero-text">
-            {eyebrow ? (
-              <motion.p
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
-                className="mb-5 inline-flex rounded-full border border-white/25 bg-white/10 px-3.5 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-hero-text-muted backdrop-blur-md sm:text-xs"
-              >
-                {eyebrow}
-              </motion.p>
-            ) : null}
-
-            <h1 className="text-[2.75rem] font-semibold leading-[1.02] tracking-tighter sm:text-6xl lg:text-7xl">
-              {words.map((word, i) => (
-                <Fragment key={`${word}-${i}`}>
-                  <span className="-mb-[0.12em] inline-block overflow-hidden pb-[0.12em] align-bottom">
-                    <motion.span
-                      className="inline-block"
-                      initial={{ y: "110%" }}
-                      animate={{ y: 0 }}
-                      transition={{ duration: 1, delay: 0.3 + i * 0.07, ease: EASE }}
-                    >
-                      {word}
-                    </motion.span>
-                  </span>{" "}
-                </Fragment>
-              ))}
-            </h1>
-
-            {description ? (
-              <motion.p
-                initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ duration: 0.9, delay: 0.55 + words.length * 0.07, ease: EASE }}
-                className="mt-5 max-w-xl text-base leading-relaxed text-hero-text-subtle md:text-lg"
-              >
-                {description}
-              </motion.p>
-            ) : null}
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.7 + words.length * 0.07, ease: EASE }}
-              className="mt-8"
-            >
-              <Link
-                href="/productos"
-                className="group inline-flex items-center gap-3 rounded-full bg-white py-1.5 pl-6 pr-1.5 text-sm font-medium text-foreground shadow-[0_12px_40px_-12px_oklch(0.18_0.03_240/0.6)] transition-transform duration-500 ease-(--ease-fluid) hover:scale-[1.02] active:scale-[0.98]"
-              >
-                Ver productos
-                <span className="flex size-9 items-center justify-center rounded-full bg-foreground text-background transition-transform duration-500 ease-(--ease-fluid) group-hover:-translate-y-px group-hover:translate-x-0.5 group-hover:scale-105">
-                  <ArrowUpRight className="size-4" strokeWidth={1.75} />
-                </span>
-              </Link>
-            </motion.div>
+      <div className="container-page pb-28 pt-32 md:pb-40 md:pt-40">
+        <div className="max-w-4xl text-background">
+          {eyebrow ? (
+            <p className="mb-5 text-lg text-background/85 animate-enter [--delay:100ms] md:text-xl">{eyebrow}</p>
+          ) : null}
+          <h1 className="font-display text-[clamp(2.75rem,1.8rem+4.6vw,6.25rem)] font-semibold uppercase leading-[0.95] tracking-tight">
+            {words.map((word, i) => (
+              <span key={`${word}-${i}`}>
+                <span className="-mb-[0.1em] inline-block overflow-hidden pb-[0.1em] align-bottom">
+                  <span className="inline-block animate-rise" style={{ "--delay": `${200 + i * 70}ms` } as React.CSSProperties}>
+                    {word}
+                  </span>
+                </span>{" "}
+              </span>
+            ))}
+          </h1>
+          {description ? (
+            <p className="mt-5 max-w-[45ch] text-lg leading-relaxed text-background/85 animate-enter [--delay:550ms] md:text-xl">
+              {description}
+            </p>
+          ) : null}
+          <div className="mt-8 flex flex-wrap gap-3 animate-enter [--delay:700ms] md:mt-10 md:gap-4">
+            <Button asChild variant="light" size="lg" arrow>
+              <Link href="/productos">Ver productos</Link>
+            </Button>
+            <Button asChild variant="outlineLight" size="lg" arrow>
+              <Link href="/sobre-nosotros">Mi historia</Link>
+            </Button>
           </div>
         </div>
 
-        {images.length > 1 ? (
-          <div className="absolute bottom-8 right-6 z-30 flex items-center gap-1.5 sm:right-10 md:bottom-10 md:right-14">
-            {images.map((image, i) => (
-              <button
-                key={image.url}
-                type="button"
-                onClick={() => setIndex(i)}
-                aria-label={`Ir a la imagen ${i + 1}`}
-                aria-current={i === activeIndex}
-                className="group py-3"
-              >
-                <span className="relative block h-[3px] w-8 overflow-hidden rounded-full bg-white/30 transition-colors duration-300 group-hover:bg-white/50 sm:w-10">
-                  {i === activeIndex ? (
-                    <motion.span
-                      key={activeIndex}
-                      className="absolute inset-0 origin-left rounded-full bg-hero-dot-active"
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ duration: AUTOPLAY_MS / 1000, ease: "linear" }}
-                    />
-                  ) : null}
-                </span>
-              </button>
-            ))}
+        {count > 1 ? (
+          <div className="mt-10 flex items-center gap-4 animate-enter [--delay:850ms] md:mt-14 md:gap-6">
+            <div className="flex flex-1 gap-1.5">
+              {images.map((image, i) => (
+                <button
+                  key={image.url}
+                  type="button"
+                  onClick={() => show(i)}
+                  aria-label={`Ver foto ${i + 1} de ${count}`}
+                  aria-current={i === active}
+                  className="group relative h-12 max-w-16 flex-1"
+                >
+                  <span className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 overflow-hidden rounded-full bg-background/25 transition-colors group-hover:bg-background/45">
+                    {i === active ? (
+                      <span
+                        key={active}
+                        onAnimationEnd={() => show(active + 1)}
+                        style={{ animationPlayState: held ? "paused" : "running" }}
+                        className="absolute inset-0 origin-left rounded-full bg-sea animate-[progress_6s_linear_both]"
+                      />
+                    ) : null}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2 text-background">
+              <ArrowButton label="Foto anterior" onClick={() => show(active - 1)}>
+                <ChevronLeft />
+              </ArrowButton>
+              <ArrowButton label="Foto siguiente" onClick={() => show(active + 1)}>
+                <ChevronRight />
+              </ArrowButton>
+            </div>
           </div>
         ) : null}
       </div>
+
+      <Wave tone="foam" edge="inside" size="lg" />
     </section>
+  );
+}
+
+function ArrowButton({ label, ...props }: React.ComponentProps<"button"> & { label: string }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      className="grid size-12 place-items-center rounded-full ring-1 ring-inset ring-background/30 transition duration-300 ease-(--ease-out-expo) hover:bg-background/10 hover:ring-background/60 active:scale-[0.96] [&_svg]:size-5"
+      {...props}
+    />
   );
 }

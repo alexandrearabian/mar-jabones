@@ -1,65 +1,52 @@
 "use client";
 
-import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { useSnapCarousel } from "@/components/carousel/use-snap-carousel";
 import { SanityImage } from "@/components/sanity-image";
 import type { SanityImage as SanityImageData } from "@/sanity/queries";
+import { cn } from "@/lib/utils";
 
-const EASE = [0.16, 1, 0.3, 1] as const;
+/** Swipeable photo strip (native scroll-snap) with thumbnails that jump to each photo. */
+export function ProductGallery({ images, name }: { images: SanityImageData[]; name: string }) {
+  const { trackRef, active, goTo } = useSnapCarousel(images.length);
 
-export function ProductGallery({ images }: { images: SanityImageData[] }) {
-  const [selected, setSelected] = useState(0);
-  const current = images[selected];
+  if (images.length === 0) {
+    return <div className="aspect-square rounded-[1.5rem] bg-sand" />;
+  }
 
   return (
     <div>
-      <div className="rounded-[2rem] bg-foreground/[0.03] p-1.5 ring-1 ring-foreground/5">
-        <div className="relative aspect-square w-full overflow-hidden rounded-[calc(2rem-0.375rem)] bg-muted">
-          {current ? (
-            <AnimatePresence initial={false} mode="popLayout">
-              <motion.div
-                key={selected}
-                className="absolute inset-0"
-                initial={{ opacity: 0, scale: 1.04 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.7, ease: EASE }}
-              >
-                <SanityImage
-                  image={current}
-                  fill
-                  priority
-                  sizes="(min-width: 1024px) 58vw, 100vw"
-                  className="object-cover"
-                />
-              </motion.div>
-            </AnimatePresence>
-          ) : (
-            <div className="flex h-full items-center justify-center text-muted-foreground">Sin imagen</div>
-          )}
-        </div>
+      <div
+        ref={trackRef}
+        tabIndex={images.length > 1 ? 0 : -1}
+        aria-label={images.length > 1 ? `Fotos de ${name} (deslizá para ver más)` : undefined}
+        className="flex aspect-square snap-x snap-mandatory overflow-x-auto overscroll-x-contain rounded-[1.5rem] bg-sand outline-none ring-offset-4 ring-offset-background [scrollbar-width:none] focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-scrollbar]:hidden"
+      >
+        {images.map((image, i) => (
+          <div key={image.url} data-slide={i} className="relative h-full w-full shrink-0 snap-center">
+            <SanityImage image={image} sizes="(min-width: 1280px) 700px, (min-width: 1024px) 55vw, 100vw" priority={i === 0} />
+          </div>
+        ))}
       </div>
 
-      {images.length > 1 && (
-        <div className="mt-4 grid grid-cols-4 gap-3 sm:gap-4">
-          {images.map((image, index) => (
+      {images.length > 1 ? (
+        <div className="mt-3 grid grid-cols-5 gap-2 sm:mt-4 sm:gap-3">
+          {images.map((image, i) => (
             <button
               key={image.url}
               type="button"
-              onClick={() => setSelected(index)}
-              aria-label={`Ver foto ${index + 1}`}
-              aria-pressed={selected === index}
-              className={`relative aspect-square overflow-hidden rounded-2xl ring-offset-2 ring-offset-background transition-[opacity,box-shadow,transform] duration-500 ease-(--ease-fluid) active:scale-[0.97] ${
-                selected === index
-                  ? "opacity-100 ring-2 ring-primary"
-                  : "opacity-60 ring-1 ring-foreground/5 hover:opacity-100"
-              }`}
+              onClick={() => goTo(i)}
+              aria-label={`Ver foto ${i + 1}`}
+              aria-current={i === active}
+              className={cn(
+                "relative aspect-square overflow-hidden rounded-[1rem] bg-sand ring-offset-2 ring-offset-background transition-[opacity,box-shadow] duration-300",
+                i === active ? "ring-2 ring-foreground" : "opacity-60 hover:opacity-100",
+              )}
             >
-              <SanityImage image={image} fill sizes="160px" className="object-cover" />
+              <SanityImage image={image} sizes="120px" />
             </button>
           ))}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

@@ -1,17 +1,17 @@
-// Sobre nosotros page - server component
-
-import { AboutVideoHero } from "@/components/about/about-video-hero";
+import type { Metadata } from "next";
 import { AboutContent } from "@/components/about/about-content";
+import { AboutVideoHero } from "@/components/about/about-video-hero";
 
-export const metadata = {
-  title: "Sobre nosotros",
-  description: "Conocé nuestra historia y cómo creamos jabones y resinas artesanales.",
+export const metadata: Metadata = {
+  title: "Sobre mí",
+  description: "La historia de Mar D Jabones y cómo hago cada jabón y resina a mano.",
 };
 
 export default function AboutPage() {
   return (
-    <AboutVideoHero>
-      <AboutContent/>
-    </AboutVideoHero>
+    <>
+      <AboutVideoHero />
+      <AboutContent />
+    </>
   );
 }

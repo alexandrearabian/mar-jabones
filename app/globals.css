@@ -1,59 +1,50 @@
 @import "tailwindcss";
 
-/* Light-only brand theme: warm off-white canvas, ocean-blue accent */
+/*
+ * Mar D Jabones: "un día en el mar".
+ * Foam-white pages, wet-sand bands, deep-sea ink; one ocean-blue accent (turquoise is its light tint).
+ * Shape rule: cards 1.5rem with photos inset at 1rem; standalone photos 1.5rem; buttons and chips fully round.
+ * Layers: sticky CTA 30, header 40, grain 50, skip link 60.
+ */
+
 @theme inline {
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display-face);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
+  --color-sand: var(--sand);
   --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
+  --color-muted-foreground: var(--muted-foreground);
   --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-sea: var(--sea);
+  --color-deep: var(--deep);
+  --color-deep-foreground: var(--deep-foreground);
   --color-card: var(--card);
-  --color-hero-text: var(--hero-text);
-  --color-hero-text-muted: var(--hero-text-muted);
-  --color-hero-text-subtle: var(--hero-text-subtle);
-  --color-hero-dot-active: var(--hero-dot-active);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
   --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --shadow-soft: 0 1px 2px oklch(0.35 0.05 230 / 0.06), 0 12px 32px -12px oklch(0.35 0.06 230 / 0.18);
-  --shadow-lift: 0 2px 4px oklch(0.35 0.05 230 / 0.06), 0 28px 60px -20px oklch(0.35 0.08 230 / 0.28);
+  --shadow-soft: 0 1px 2px oklch(0.3 0.05 235 / 0.06), 0 16px 40px -16px oklch(0.3 0.06 235 / 0.22);
+  --shadow-lift: 0 2px 4px oklch(0.3 0.05 235 / 0.06), 0 28px 56px -20px oklch(0.3 0.06 235 / 0.3);
 }
 
 :root {
-  --radius: 0.75rem;
-  --background: oklch(0.99 0.004 90);
-  --foreground: oklch(0.22 0.02 250);
-  --card: oklch(1 0 0);
-  --primary: oklch(0.55 0.12 230);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.94 0.025 85);
-  --secondary-foreground: oklch(0.28 0.02 250);
-  --muted: oklch(0.96 0.012 90);
-  --muted-foreground: oklch(0.5 0.02 250);
-  --accent: oklch(0.94 0.03 85);
-  --accent-foreground: oklch(0.28 0.02 250);
-  --border: oklch(0.91 0.01 90);
-  --input: oklch(0.93 0.01 90);
-  --ring: oklch(0.55 0.12 230);
-  --hero-text: oklch(1 0 0);
-  --hero-text-muted: oklch(1 0 0 / 0.82);
-  --hero-text-subtle: oklch(1 0 0 / 0.88);
-  --hero-dot-active: oklch(1 0 0);
+  --background: oklch(0.985 0.007 90); /* foam */
+  --sand: oklch(0.955 0.02 85); /* wet sand */
+  --card: oklch(0.995 0.003 90); /* card surface, a touch brighter than the page */
+  --foreground: oklch(0.26 0.045 235); /* deep-sea ink */
+  --muted: oklch(0.95 0.012 90);
+  --muted-foreground: oklch(0.47 0.03 235);
+  --primary: oklch(0.43 0.09 228); /* ocean */
+  --primary-foreground: oklch(0.985 0.007 90);
+  --sea: oklch(0.76 0.1 205); /* logo turquoise: decoration only, too light for text */
+  --deep: oklch(0.25 0.05 235);
+  --deep-foreground: oklch(0.95 0.015 90);
+  --border: oklch(0.89 0.015 85);
+  --ring: oklch(0.55 0.1 225);
+  /* Floating navbar: pt-3 + h-16. Full-bleed heroes pull up by this much to sit under it. */
+  --header-h: 4.75rem;
 }
 
 @layer base {
@@ -61,20 +52,277 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+  button:not(:disabled),
+  [role="button"],
+  summary {
+    cursor: pointer;
   }
   ::selection {
-    background: oklch(0.55 0.12 230 / 0.18);
+    background: oklch(0.76 0.1 205 / 0.35);
   }
   h1,
   h2,
-  h3,
-  h4 {
-    @apply text-balance tracking-tight;
+  h3 {
+    text-wrap: balance;
   }
   p {
-    @apply text-pretty;
+    text-wrap: pretty;
   }
+}
+
+/* ---------- Layout: one container and one spacing scale for every page ---------- */
+
+@utility container-page {
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  @media (width >= 40rem) {
+    padding-inline: 2rem;
+  }
+  @media (width >= 64rem) {
+    padding-inline: 2.5rem;
+  }
+}
+
+/* Vertical rhythm between home sections */
+@utility section-y {
+  padding-block: 5rem;
+  @media (width >= 48rem) {
+    padding-block: 7.5rem;
+  }
+}
+
+/* Gutter for full-bleed framed media (hero, about video) */
+@utility frame-x {
+  margin-inline: 0.75rem;
+  @media (width >= 40rem) {
+    margin-inline: 1rem;
+  }
+}
+
+/* ---------- Type scale ---------- */
+
+@utility heading-1 {
+  font-family: var(--font-display-face), sans-serif;
+  font-weight: 600;
+  font-size: clamp(2.5rem, 1.75rem + 3.2vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+
+@utility heading-2 {
+  font-family: var(--font-display-face), sans-serif;
+  font-weight: 600;
+  font-size: clamp(2rem, 1.55rem + 1.9vw, 3.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+
+@utility heading-3 {
+  font-family: var(--font-display-face), sans-serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  @media (width >= 40rem) {
+    font-size: 1.5rem;
+  }
+}
+
+@utility lead {
+  font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  line-height: 1.6;
+  color: var(--muted-foreground);
+  max-width: 60ch;
+}
+
+@utility chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklch, var(--foreground) 14%, transparent);
+  padding: 0.375rem 0.875rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+@utility link-underline {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  text-decoration-color: color-mix(in oklch, currentColor 35%, transparent);
+  transition: text-decoration-color 0.3s var(--ease-fluid);
+  &:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+/* ---------- Brand motif: layered waves from the logo, at every colour change ---------- */
+/* Rendered by components/ui/wave.tsx. A wave belongs to a coloured section and spills over its edge. */
+
+.wave {
+  position: absolute;
+  inset-inline: 0;
+  z-index: 1;
+  height: 2.75rem;
+  overflow: hidden;
+  pointer-events: none;
+  @media (width >= 48rem) {
+    height: 4rem;
+  }
+}
+.wave[data-size="lg"] {
+  height: 4rem;
+  @media (width >= 48rem) {
+    height: 6rem;
+  }
+}
+.wave[data-edge="top"] {
+  bottom: calc(100% - 1px);
+}
+.wave[data-edge="bottom"] {
+  top: calc(100% - 1px);
+  transform: scaleY(-1);
+}
+/* At the section's own bottom edge, in the colour of what comes next (e.g. foam over the hero photo) */
+.wave[data-edge="inside"] {
+  bottom: -1px;
+}
+.wave[data-tone="foam"] {
+  --wave: var(--background);
+}
+.wave[data-tone="sand"] {
+  --wave: var(--sand);
+}
+.wave[data-tone="deep"] {
+  --wave: var(--deep);
+}
+
+/* Each layer is one wave period wider than the screen and slides by exactly one period: a seamless loop */
+.wave-layer {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: calc(100% + 720px);
+  background: var(--wave);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 40' preserveAspectRatio='none'%3E%3Cpath d='M0 22 Q90 4 180 22 T360 22 T540 22 T720 22 V40 H0 Z'/%3E%3C/svg%3E")
+    repeat-x left bottom / 720px 100%;
+  animation: wave-drift 22s linear infinite;
+}
+.wave-layer[data-layer="back"] {
+  opacity: 0.45;
+  mask-position: 240px bottom;
+  animation-duration: 34s;
+  animation-direction: reverse;
+  top: -0.75rem;
+}
+@keyframes wave-drift {
+  to {
+    transform: translateX(-720px);
+  }
+}
+
+/* Frosted glass (web approximation, not Apple's Liquid Glass): translucent foam, blur and a light edge.
+   Opaque where blur is unsupported or the OS asks for less transparency, so text stays readable. */
+.glass {
+  background: oklch(0.985 0.007 90 / 0.92);
+  border: 1px solid oklch(1 0 0 / 0.45);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.55),
+    var(--shadow-soft);
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass {
+    background: oklch(0.985 0.007 90 / 0.9);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--background);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Mobile menu (native <dialog>): opens like a tide. A sand wave rises from the bottom and the foam panel
+   follows with its own wavy crest, carrying the options with it; on close it all sinks, faster.
+   The options don't animate on their own: text settling after its own transform re-renders and blinks.
+   navbar.tsx drives it with data-state ("open" / "closing") and only calls dialog.close() after the
+   sink finishes, so it works the same in every browser (no @starting-style / allow-discrete needed). */
+.menu {
+  background: transparent;
+}
+/* No animated dimming: a full-screen colour transition repaints every frame, and the tide covers the page */
+.menu::backdrop {
+  background: transparent;
+}
+.menu-tide,
+.menu-panel {
+  transform: translate3d(0, calc(100% + 7rem), 0);
+  will-change: transform;
+  /* Exit: standard accelerate curve, ~60% of the entrance (a steep ease-in crams the motion into the last frames) */
+  transition: transform 0.36s cubic-bezier(0.3, 0, 0.8, 0.15);
+}
+.menu-tide {
+  transition-delay: 0.04s;
+}
+/* Entrance: the iOS bottom-sheet curve spreads a full-screen travel evenly (expo moved ~70% in 6 frames) */
+.menu[data-state="open"] .menu-tide {
+  transform: translate3d(0, 0, 0);
+  transition: transform 0.55s var(--ease-fluid);
+}
+.menu[data-state="open"] .menu-panel {
+  transform: translate3d(0, 0, 0);
+  transition: transform 0.6s var(--ease-fluid) 0.06s;
+}
+/* Crests stay still in the menu: a masked layer animating inside a moving panel flickers in Safari */
+.menu .wave-layer {
+  animation: none;
+  width: 100%; /* no drift, so no extra period of width: smaller layers to move */
+}
+.menu-tide,
+.menu-panel {
+  backface-visibility: hidden;
+}
+html:has(.menu[open]) {
+  overflow: hidden;
+  /* Keep the scrollbar's space so the page behind doesn't shift sideways on desktop */
+  scrollbar-gutter: stable;
+}
+
+/* Photo loading state: a sand skeleton with a soft shimmer, then the photo fades in (sanity-image.tsx) */
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+.skeleton {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--sand);
+  transition: opacity 0.5s var(--ease-out-expo);
+}
+.skeleton[data-done] {
+  opacity: 0;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.55), transparent);
+  animation: shimmer 1.5s var(--ease-fluid) infinite;
+}
+/* Stop animating once the photo is in */
+.skeleton[data-done]::after {
+  animation: none;
 }
 
 /* Film grain for the public site: fixed + pointer-events-none so it never repaints on scroll */
@@ -82,10 +330,81 @@
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 90;
+  z-index: 50;
   pointer-events: none;
   opacity: 0.035;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- Motion: CSS only, content is visible without JavaScript ---------- */
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+}
+@keyframes rise {
+  from {
+    transform: translateY(105%);
+  }
+}
+@keyframes page-in {
+  from {
+    transform: translateY(0.5rem);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes drift {
+  from {
+    transform: scale(1.08);
+  }
+}
+
+/* Hero legibility: near-solid deep sea under the copy, fading out by 65%, plus an edge vignette */
+.hero-spotlight {
+  background:
+    linear-gradient(to top, var(--deep) 0%, oklch(0.25 0.05 235 / 0.72) 30%, transparent 65%),
+    radial-gradient(ellipse 85% 75% at 62% 38%, transparent 0%, oklch(0.25 0.05 235 / 0.35) 55%, oklch(0.25 0.05 235 / 0.85) 100%);
+}
+
+/* Load-time entrance (above the fold). --delay staggers siblings. */
+@utility animate-enter {
+  animation: enter 0.9s var(--ease-out-expo) both;
+  animation-delay: var(--delay, 0s);
+}
+@utility animate-rise {
+  animation: rise 1s var(--ease-out-expo) both;
+  animation-delay: var(--delay, 0s);
+}
+/* Transform only: fading the whole page would delay LCP */
+@utility animate-page {
+  animation: page-in 0.6s var(--ease-out-expo);
+}
+@utility animate-fade-in {
+  animation: fade-in 0.6s var(--ease-out-expo);
+}
+
+/* Scroll reveal driven by the scroll position itself: zero JS, and simply static where unsupported */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: enter var(--ease-out-expo) both;
+    animation-timeline: view();
+    /* Fixed distance, not a % of the element: tall cards near the fold never rest half-faded */
+    animation-range: entry 0 entry 8rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -95,8 +414,56 @@
   *,
   ::before,
   ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+    animation: none !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* The mobile sticky "Consultar" bar would otherwise cover the end of the footer */
+@media (width < 64rem) {
+  body:has([data-sticky-cta]) footer {
+    padding-bottom: 5.5rem;
+  }
+}
+
+/* About hero: video drifts and title lifts as its runway scrolls out of view */
+@keyframes about-video {
+  to {
+    transform: translateY(2.25rem) scale(1.06);
+  }
+}
+/* The wave between photo and bio swells as the hero scrolls away */
+@keyframes about-wave {
+  to {
+    transform: scaleY(1.8);
+  }
+}
+@keyframes about-title {
+  to {
+    transform: translateY(-1.75rem);
+    opacity: 0;
+  }
+}
+@supports (animation-timeline: view()) {
+  .about-runway {
+    view-timeline-name: --about-hero;
+  }
+  .about-video,
+  .about-title,
+  .about-wave {
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --about-hero;
+    animation-range: exit 0% exit 100%;
+  }
+  .about-video {
+    animation-name: about-video;
+  }
+  .about-title {
+    animation-name: about-title;
+  }
+  .about-wave {
+    transform-origin: bottom;
+    animation-name: about-wave;
   }
 }

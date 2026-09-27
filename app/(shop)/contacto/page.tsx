@@ -9,6 +9,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Contacto",
   description: "Cómo hacer un pedido: escribime por Instagram para precios, colores y pedidos especiales.",
+  alternates: { canonical: "/contacto" },
 };
 
 const STEPS = [

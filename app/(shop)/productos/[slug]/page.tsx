@@ -5,6 +5,8 @@ import { PageShell } from "@/components/layout/page-shell";
 import { ProductDetail } from "@/components/shop/product-detail";
 import { ProductFilters } from "@/components/shop/product-filters";
 import { ProductGrid } from "@/components/shop/product-grid";
+import { Breadcrumbs } from "@/components/seo/json-ld";
+import { openGraphBase, site } from "@/lib/site";
 import { getSlugPage, getSlugs } from "@/sanity/queries";
 
 // /productos/<slug> serves both category listings and product pages from a single query.
@@ -20,16 +22,28 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const { category, product } = await getSlugPage(slug);
+  const alternates = { canonical: `/productos/${slug}` };
   if (category) {
-    return { title: category.name, description: category.description ?? undefined };
+    return {
+      title: category.name,
+      description:
+        category.description ?? `${category.name} artesanales hechos a mano por ${site.name} en ${site.city}.`,
+      alternates,
+    };
   }
   if (!product) return { title: "Producto no encontrado" };
 
   const cover = product.images[0];
   return {
     title: product.name,
-    description: `${product.name}: ${product.category.name.toLowerCase()} artesanales de Mar D Jabones. Consultá precio y disponibilidad por Instagram.`,
-    openGraph: cover ? { images: [{ url: `${cover.url}?w=1200&h=630&fit=crop`, alt: cover.alt }] } : undefined,
+    description:
+      product.description ??
+      `${product.name}: ${product.category.name.toLowerCase()} artesanales de ${site.name}. Consultá precio y disponibilidad por Instagram.`,
+    alternates,
+    // Replaces the layout's openGraph entirely, so it re-includes the shared defaults
+    openGraph: cover
+      ? { ...openGraphBase, images: [{ url: `${cover.url}?w=1200&h=630&fit=crop`, alt: cover.alt }] }
+      : undefined,
   };
 }
 
@@ -40,6 +54,7 @@ export default async function ProductosSlugPage({ params }: Props) {
   if (category) {
     return (
       <>
+        <Breadcrumbs trail={[{ name: category.name, path: `/productos/${category.slug}` }]} />
         <PageHeader title={category.name} subtitle={category.description ?? undefined}>
           <ProductFilters categories={categories} active={category.slug} />
         </PageHeader>
@@ -54,6 +69,12 @@ export default async function ProductosSlugPage({ params }: Props) {
 
   return (
     <PageShell>
+      <Breadcrumbs
+        trail={[
+          { name: product.category.name, path: `/productos/${product.category.slug}` },
+          { name: product.name, path: `/productos/${product.slug}` },
+        ]}
+      />
       <ProductDetail product={product} />
     </PageShell>
   );

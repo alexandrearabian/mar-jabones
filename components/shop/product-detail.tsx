@@ -40,6 +40,10 @@ export function ProductDetail({ product }: { product: Product }) {
             </p>
           ) : null}
 
+          {product.description ? (
+            <p className="lead mt-6 max-w-[52ch] animate-enter [--delay:90ms]">{product.description}</p>
+          ) : null}
+
           {product.sizes?.length || product.ingredients ? (
             <dl className="mt-8 space-y-6 animate-enter [--delay:120ms]">
               {product.sizes?.length ? (

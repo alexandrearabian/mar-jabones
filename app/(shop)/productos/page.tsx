@@ -8,6 +8,7 @@ import { getCategories, getProducts } from "@/sanity/queries";
 export const metadata: Metadata = {
   title: "Productos",
   description: "Todos mis jabones y resinas artesanales, hechos a mano en Buenos Aires.",
+  alternates: { canonical: "/productos" },
 };
 
 export default async function ProductosPage() {

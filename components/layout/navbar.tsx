@@ -303,7 +303,7 @@ function Brand({ className, onClick }: { className?: string; onClick?: React.Mou
   return (
     <Link href="/" onClick={onClick} className={cn("group flex items-center gap-3 rounded-full pr-3", className)}>
       <img
-        src="/logo-mar.jpg"
+        src={site.logo}
         alt=""
         width={44}
         height={44}

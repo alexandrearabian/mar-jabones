@@ -2,7 +2,10 @@
 export const site = {
   name: "Mar D Jabones",
   description: "Jabones y resinas hechos a mano en Buenos Aires, con aromas que perfuman el alma.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.mardjabones.com.ar",
+  // The primary domain (the non-www one 308-redirects here). Fixed on purpose: sitemap, robots and canonical
+  // URLs must always name this host, whatever environment builds the site.
+  url: "https://www.mardjabones.com.ar",
+  logo: "/logo-mar.jpg",
   city: "Buenos Aires",
   foundedYear: 2008,
   instagram: {
@@ -22,6 +25,13 @@ export const site = {
     width: 1024,
     height: 576,
   },
+} as const;
+
+/** Link-preview defaults. Next replaces (not merges) a parent's openGraph, so pages that set their own spread this. */
+export const openGraphBase = {
+  type: "website",
+  locale: "es_AR",
+  siteName: site.name,
 } as const;
 
 /** Top-level pages. `description` is the one-line hint under each row of the mobile menu. */

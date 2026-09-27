@@ -54,6 +54,6 @@ El script solo crea lo que falta, así que se puede volver a correr sin pisar ca
 
 ## Deploy
 
-Variables de entorno en el hosting: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SANITY_PROJECT_ID`,
+Variables de entorno en el hosting: `NEXT_PUBLIC_SANITY_PROJECT_ID`,
 `NEXT_PUBLIC_SANITY_DATASET`. Agregar el dominio de producción en sanity.io/manage → API → CORS origins
 (con "Allow credentials") para que funcione el Studio.

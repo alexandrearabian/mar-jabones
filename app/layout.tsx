@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { preconnect } from "react-dom";
-import { site } from "@/lib/site";
+import { openGraphBase, site } from "@/lib/site";
 import "./globals.css";
 
 const body = localFont({
@@ -25,14 +25,12 @@ export const metadata: Metadata = {
   title: { default: title, template: `%s | ${site.name}` },
   description: site.description,
   openGraph: {
-    type: "website",
-    locale: "es_AR",
-    siteName: site.name,
+    ...openGraphBase,
     title,
     description: site.description,
   },
   twitter: { card: "summary_large_image", title: site.name, description: site.description },
-  icons: { icon: "/logo-mar.jpg", apple: "/logo-mar.jpg" },
+  icons: { icon: site.logo, apple: site.logo },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

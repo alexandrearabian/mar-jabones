@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { site } from "@/lib/site";
+import type { AboutPage } from "@/sanity/queries";
 
 const paragraphs = [
   "Trabajo en pequeñas tandas y cuido cada detalle, desde los materiales hasta el moño del paquete. Me gusta partir de lo tradicional, como el jabón de Castilla, y jugar con colores y remolinos hasta llegar a diseños únicos.",
@@ -8,7 +9,7 @@ const paragraphs = [
   `Pronto se convirtieron en regalos empresariales. ${site.quote.author} definió entonces:`,
 ];
 
-export function AboutContent() {
+export function AboutContent({ techniques }: Pick<AboutPage, "techniques">) {
   return (
     <div className="container-page max-w-3xl pb-20 pt-6 md:pb-28 md:pt-10">
       <p className="font-display text-[clamp(1.375rem,1.15rem+0.9vw,1.875rem)] font-medium leading-snug tracking-tight">
@@ -28,6 +29,22 @@ export function AboutContent() {
       <p className="text-lg leading-relaxed text-muted-foreground">
         Hoy, desde {site.city}, {site.name} sigue regalando aromas, colores y burbujas junto a las olas del Atlántico.
       </p>
+
+      {techniques.length > 0 ? (
+      <section aria-labelledby="como-los-hago" className="mt-16 border-t border-border pt-12 md:mt-20 md:pt-14">
+        <h2 id="como-los-hago" className="heading-2">
+          Cómo los hago
+        </h2>
+        <dl className="mt-8 grid gap-8 md:grid-cols-3 md:gap-10">
+          {techniques.map(({ name, text }) => (
+            <div key={name} className="reveal">
+              <dt className="heading-3">{name}</dt>
+              <dd className="mt-2 leading-relaxed text-muted-foreground">{text}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+      ) : null}
 
       <Button asChild size="lg" arrow className="mt-12">
         <Link href="/productos">Ver productos</Link>

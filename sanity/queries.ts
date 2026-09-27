@@ -29,6 +29,7 @@ export interface Category {
 
 export interface Product extends ProductSummary {
   images: SanityImage[];
+  description: string | null;
   sizes: string[] | null;
   ingredients: string | null;
   related: ProductSummary[];
@@ -40,6 +41,10 @@ export interface HomePage {
   description: string | null;
   images: SanityImage[];
   featured: ProductSummary[];
+}
+
+export interface AboutPage {
+  techniques: { name: string; text: string }[];
 }
 
 /** /productos/<slug> resolves to a category (with its products) or a product, in one request. */
@@ -85,6 +90,8 @@ const homePageQuery = defineQuery(`*[_id == "homePage"][0]{
   )
 }`);
 
+const aboutPageQuery = defineQuery(`*[_id == "aboutPage"][0]{ "techniques": coalesce(techniques[]{ name, text }, []) }`);
+
 const categoriesQuery = defineQuery(CATEGORIES);
 
 const productsQuery = defineQuery(`${PUBLISHED_PRODUCTS} | order(name asc){ ${PRODUCT_SUMMARY} }`);
@@ -97,6 +104,7 @@ const slugPageQuery = defineQuery(`{
   "product": *[_type == "product" && slug.current == $slug][0]{
     ${PRODUCT_SUMMARY},
     "images": coalesce(images[]${IMAGE}, []),
+    description,
     sizes,
     ingredients,
     "related": ${PUBLISHED_PRODUCTS.slice(0, -1)} && category._ref == ^.category._ref && _id != ^._id]
@@ -110,6 +118,8 @@ const slugsQuery = defineQuery(`*[_type in ["category", "product"] && defined(sl
 }`);
 
 export const getHomePage = () => sanityFetch<HomePage | null>(homePageQuery);
+
+export const getAboutPage = () => sanityFetch<AboutPage | null>(aboutPageQuery);
 
 export const getCategories = () => sanityFetch<Category[]>(categoriesQuery);
 

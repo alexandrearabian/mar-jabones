@@ -24,6 +24,13 @@ export const product = defineType({
       validation: (rule) => rule.required().min(1),
     }),
     defineField({
+      name: "description",
+      title: "Descripción",
+      description: "Dos o tres frases: formas, aromas, para qué ocasión. Si está vacía, no se muestra.",
+      type: "text",
+      rows: 3,
+    }),
+    defineField({
       name: "sizes",
       title: "Tamaños",
       description: "Por ejemplo: Chico, Mediano, Grande.",

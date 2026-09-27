@@ -12,7 +12,7 @@ export function Footer() {
       <div className="container-page grid gap-12 py-16 md:grid-cols-12 md:py-20">
         <div className="space-y-6 md:col-span-5">
           <div className="flex items-center gap-3">
-            <img src="/logo-mar.jpg" alt="" width={44} height={44} loading="lazy" className="size-11 rounded-full" />
+            <img src={site.logo} alt="" width={44} height={44} loading="lazy" className="size-11 rounded-full" />
             <p className="font-display text-2xl font-semibold tracking-tight">{site.name}</p>
           </div>
           <p className="max-w-sm leading-relaxed text-deep-foreground/70">{site.description}</p>

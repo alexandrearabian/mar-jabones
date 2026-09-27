@@ -1,113 +1,64 @@
-"use client";
-
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { motion } from "motion/react";
-import {
-  formatProductPrice,
-  hasProductPrice,
-  INSTAGRAM_HANDLE,
-} from "@/lib/shop/product-pricing";
+import { ArrowUpRight, Award } from "lucide-react";
+import { SanityImage } from "@/components/sanity-image";
+import type { ProductSummary } from "@/sanity/queries";
+import { cn } from "@/lib/utils";
 
-interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  price?: number;
-  compareAtPrice?: number;
-  image?: string;
-  category?: string;
-  shortDescriptionText?: string;
+/** Shared card surface: every card on the site lifts on hover; photos never zoom. */
+export const cardSurface =
+  "flex h-full flex-col rounded-[1.5rem] bg-card p-2 shadow-[0_0_0_1px_oklch(0.26_0.045_235/0.06),var(--shadow-soft)] outline-none transition-[transform,box-shadow] duration-700 ease-(--ease-fluid) hover:-translate-y-1 hover:shadow-[0_0_0_1px_oklch(0.26_0.045_235/0.1),var(--shadow-lift)] focus-visible:ring-2 focus-visible:ring-ring";
+
+/** Arrow chip in the card's caption; turns ocean blue when the card is hovered. */
+export function CardArrow({ className }: { className?: string }) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "grid size-8 shrink-0 place-items-center rounded-full bg-sand text-foreground transition-[background-color,color,transform] duration-500 ease-(--ease-fluid) group-hover/card:translate-x-0.5 group-hover/card:bg-primary group-hover/card:text-primary-foreground sm:size-9",
+        className,
+      )}
+    >
+      <ArrowUpRight className="size-4" strokeWidth={1.75} />
+    </span>
+  );
 }
 
 interface ProductCardProps {
-  product: Product;
-  index?: number;
+  product: ProductSummary;
+  /** Rendered width of the photo, for the srcset. */
+  sizes: string;
+  /** Photo box classes; defaults to a 4:5 portrait. */
+  photoClassName?: string;
+  showCategory?: boolean;
+  /** Above-the-fold cards load first. */
+  priority?: boolean;
 }
 
-export function ProductCard({ product, index = 0 }: ProductCardProps) {
-  const showPrice = hasProductPrice(product.price);
-  const hasDiscount =
-    showPrice &&
-    product.compareAtPrice !== undefined &&
-    product.compareAtPrice > product.price!;
-  const discountPercent = hasDiscount
-    ? Math.round(
-        ((product.compareAtPrice! - product.price!) / product.compareAtPrice!) * 100,
-      )
-    : 0;
+export function ProductCard({ product, sizes, photoClassName, showCategory = true, priority }: ProductCardProps) {
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.04, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -3 }}
-      className="group h-full"
-    >
-      <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-shadow duration-300 hover:shadow-md">
-        <Link href={`/productos/${product.slug}`} className="block">
-          <div className="relative aspect-4/5 w-full overflow-hidden bg-muted">
-            {product.image ? (
-              // Plain img — reliable for local Strapi URLs in dev
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={product.image}
-                alt={product.name}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                loading="lazy"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                Sin imagen
-              </div>
-            )}
-            {hasDiscount && (
-              <Badge variant="destructive" className="absolute right-2.5 top-2.5">
-                -{discountPercent}%
-              </Badge>
-            )}
-          </div>
-        </Link>
-
-        <div className="flex flex-1 flex-col gap-2 px-4 py-4 sm:px-5 sm:py-5">
-          <Link href={`/productos/${product.slug}`}>
-            <h3 className="text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-base">
-              {product.name}
-            </h3>
-          </Link>
-
-          {product.shortDescriptionText ? (
-            <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-              {product.shortDescriptionText}
+    <Link href={`/productos/${product.slug}`} className={cn("group/card", cardSurface)}>
+      <div className={cn("relative overflow-hidden rounded-[1rem] bg-sand", photoClassName ?? "aspect-[4/5]")}>
+        {product.image ? <SanityImage image={product.image} sizes={sizes} priority={priority} /> : null}
+      </div>
+      <div className="flex flex-1 items-end justify-between gap-3 px-2 pb-1.5 pt-3.5 sm:px-2.5 sm:pt-4">
+        <div className="min-w-0">
+          <h3 className="font-display text-base font-semibold leading-snug sm:text-lg">{product.name}</h3>
+          {showCategory || product.award ? (
+            <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
+              {showCategory ? product.category.name : null}
+              {/* Full prize name lives on the product page; the card only flags it */}
+              {product.award ? (
+                <span title={product.award} className="inline-flex items-center gap-1 text-primary">
+                  <Award className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden />
+                  <span className="sr-only">{product.award}</span>
+                  {showCategory ? null : "Premiado"}
+                </span>
+              ) : null}
             </p>
           ) : null}
-
-          <div className="mt-auto pt-1">
-            {showPrice ? (
-              <div className="flex items-baseline gap-2">
-                <p className="text-sm font-semibold text-foreground sm:text-base">
-                  {formatProductPrice(product.price!)}
-                </p>
-                {hasDiscount && (
-                  <p className="text-xs text-muted-foreground line-through sm:text-sm">
-                    {formatProductPrice(product.compareAtPrice!)}
-                  </p>
-                )}
-              </div>
-            ) : (
-              <Link
-                href={`https://ig.me/m/${INSTAGRAM_HANDLE}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs font-medium text-primary transition-colors hover:underline sm:text-sm"
-                onClick={(e) => e.stopPropagation()}
-              >
-                Consultar por Instagram
-              </Link>
-            )}
-          </div>
         </div>
+        <CardArrow />
       </div>
-    </motion.article>
+    </Link>
   );
 }

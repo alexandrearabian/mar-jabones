@@ -1,51 +1,26 @@
-// Social icons component with motion animations
-// Client component for motion interactions
-// Accepts icon names as strings to avoid serialization issues
+import { Facebook, Instagram } from "lucide-react";
+import { site } from "@/lib/site";
 
-"use client";
+const links = [
+  { href: site.instagram.profileUrl, label: "Instagram", Icon: Instagram },
+  { href: site.facebookUrl, label: "Facebook", Icon: Facebook },
+];
 
-import { motion } from "motion/react";
-import { Instagram, Facebook, Mail, LucideIcon } from "lucide-react";
-
-// Map icon names to icon components
-const iconMap: Record<string, LucideIcon> = {
-  instagram: Instagram,
-  facebook: Facebook,
-  mail: Mail,
-};
-
-interface SocialLink {
-  href: string;
-  label: string;
-  iconName: string; // Changed from icon to iconName
-}
-
-interface SocialIconsProps {
-  links: SocialLink[];
-}
-
-export function SocialIcons({ links }: SocialIconsProps) {
+export function SocialIcons() {
   return (
-    <div className="flex gap-4">
-      {links.map((social) => {
-        const Icon = iconMap[social.iconName];
-        if (!Icon) return null;
-
-        return (
-          <motion.a
-            key={social.href}
-            href={social.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={social.label}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <Icon className="h-5 w-5" />
-          </motion.a>
-        );
-      })}
+    <div className="flex gap-2">
+      {links.map(({ href, label, Icon }) => (
+        <a
+          key={href}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={label}
+          className="flex size-11 items-center justify-center rounded-full border border-deep-foreground/15 text-deep-foreground/80 transition-[color,border-color,transform] duration-300 ease-(--ease-fluid) hover:-translate-y-0.5 hover:border-deep-foreground/40 hover:text-deep-foreground"
+        >
+          <Icon className="size-[18px]" strokeWidth={1.5} />
+        </a>
+      ))}
     </div>
   );
 }

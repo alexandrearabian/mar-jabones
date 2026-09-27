@@ -1,97 +1,48 @@
-"use client";
-
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import type { Category } from "@/sanity/queries";
 import { cn } from "@/lib/utils";
 
 interface ProductFiltersProps {
-  selectedCategory?: string;
+  categories: Category[];
+  /** Slug of the category being viewed; null on the all-products page. */
+  active: string | null;
 }
 
-const categories = [
-  { id: "jabones", name: "Jabones" },
-  { id: "resinas", name: "Resinas" },
-];
-
-function filterLinkClass(active: boolean) {
-  return cn(
-    "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-    active
-      ? "bg-primary text-primary-foreground shadow-sm"
-      : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
-  );
-}
-
-function sidebarLinkClass(active: boolean) {
-  return cn(
-    "block rounded-lg px-3 py-2.5 text-sm transition-colors",
-    active
-      ? "bg-primary/10 font-medium text-primary"
-      : "text-muted-foreground hover:bg-muted hover:text-foreground",
-  );
-}
-
-export function ProductFilters({ selectedCategory }: ProductFiltersProps) {
-  const searchParams = useSearchParams();
-
-  const buildUrl = (category?: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (category) {
-      params.set("categoria", category);
-    } else {
-      params.delete("categoria");
-    }
-    params.delete("pagina");
-    const qs = params.toString();
-    return qs ? `/productos?${qs}` : "/productos";
-  };
+export function ProductFilters({ categories, active }: ProductFiltersProps) {
+  const total = categories.reduce((sum, c) => sum + c.productCount, 0);
+  const links = [
+    { href: "/productos", label: "Todos", count: total, current: active === null },
+    ...categories.map((c) => ({
+      href: `/productos/${c.slug}`,
+      label: c.name,
+      count: c.productCount,
+      current: active === c.slug,
+    })),
+  ];
 
   return (
-    <>
-      {/* Mobile: horizontal chips */}
-      <div className="mb-6 flex gap-2 overflow-x-auto pb-1 lg:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <Link href={buildUrl()} className={cn(filterLinkClass(!selectedCategory), "shrink-0")}>
-          Todas
-        </Link>
-        {categories.map((category) => (
-          <Link
-            key={category.id}
-            href={buildUrl(category.id)}
-            className={cn(
-              filterLinkClass(selectedCategory === category.id),
-              "shrink-0",
-            )}
-          >
-            {category.name}
-          </Link>
+    <nav aria-label="Categorías" className="-mx-5 overflow-x-auto px-5 [scrollbar-width:none] md:mx-0 md:px-0">
+      <ul className="flex gap-2">
+        {links.map((link) => (
+          <li key={link.href}>
+            <Link
+              href={link.href}
+              aria-current={link.current ? "page" : undefined}
+              className={cn(
+                "inline-flex h-11 shrink-0 items-center gap-2 rounded-full border px-5 text-[15px] font-medium transition-colors duration-300",
+                link.current
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-foreground/15 bg-card hover:border-foreground/35",
+              )}
+            >
+              {link.label}
+              <span className={cn("tabular-nums", link.current ? "text-background/60" : "text-muted-foreground")}>
+                {link.count}
+              </span>
+            </Link>
+          </li>
         ))}
-      </div>
-
-      {/* Desktop: sidebar */}
-      <aside className="hidden lg:block">
-        <div className="sticky top-24 rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Categorías
-          </h2>
-          <ul className="space-y-1">
-            <li>
-              <Link href={buildUrl()} className={sidebarLinkClass(!selectedCategory)}>
-                Todas
-              </Link>
-            </li>
-            {categories.map((category) => (
-              <li key={category.id}>
-                <Link
-                  href={buildUrl(category.id)}
-                  className={sidebarLinkClass(selectedCategory === category.id)}
-                >
-                  {category.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </aside>
-    </>
+      </ul>
+    </nav>
   );
 }

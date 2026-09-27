@@ -1,181 +1,102 @@
-// Product detail component
-// Displays full product information with optional price and Instagram inquiry CTA
-
-"use client";
-
-import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Instagram } from "lucide-react";
-import type { BlocksContent } from "@strapi/blocks-react-renderer";
-import { BlocksRenderer } from "@strapi/blocks-react-renderer";
-import { isPrivateOrLocalUrl } from "@/lib/is-private-url";
-import {
-  formatProductPrice,
-  hasProductPrice,
-  INSTAGRAM_HANDLE,
-} from "@/lib/shop/product-pricing";
+import { ArrowLeft, Award, Check } from "lucide-react";
+import type { Product } from "@/sanity/queries";
+import { InstagramCta } from "./instagram-cta";
+import { ProductGallery } from "./product-gallery";
+import { ProductGrid } from "./product-grid";
 
-interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  description: BlocksContent | null;
-  price?: number;
-  compareAtPrice?: number;
-  images: string[];
-  category?: { name: string | null; slug: string | null } | null;
-  stock: number;
-  size?: string | null;
-  color?: string | null;
-}
+const NOTES = [
+  "Hecho a mano, en pequeñas tandas",
+  "Tamaño, color y aroma a pedido, según disponibilidad",
+  "Recuerdos para bautismos, casamientos y empresas",
+];
 
-interface ProductDetailProps {
-  slug: string;
-  product?: Product | null;
-}
-
-export function ProductDetail({ product: productProp }: ProductDetailProps) {
-  const [product] = useState<Product | null>(productProp ?? null);
-  const [selectedImage, setSelectedImage] = useState(0);
-
-  if (!product) {
-    return (
-      <div className="py-12 text-center">
-        <p className="text-muted-foreground">Producto no encontrado</p>
-      </div>
-    );
-  }
-
-  const showPrice = hasProductPrice(product.price);
-  const hasDiscount =
-    showPrice &&
-    product.compareAtPrice !== undefined &&
-    product.compareAtPrice > product.price!;
-  const bypassOptimization =
-    product.images[selectedImage] ? isPrivateOrLocalUrl(product.images[selectedImage]) : false;
-  const instagramUrl = `https://ig.me/m/${INSTAGRAM_HANDLE}`;
+export function ProductDetail({ product }: { product: Product }) {
+  const categoryHref = `/productos/${product.category.slug}`;
 
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-      {/* Product Images */}
-      <div>
-        <div className="relative aspect-square w-full overflow-hidden rounded-lg border bg-muted">
-          {product.images[selectedImage] ? (
-            <Image
-              src={product.images[selectedImage]}
-              alt={product.name}
-              fill
-              className="object-cover"
-              priority
-              unoptimized={bypassOptimization}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-muted-foreground">
-              Sin imagen
-            </div>
-          )}
+    <>
+      <Link
+        href={categoryHref}
+        className="mb-6 inline-flex items-center gap-2 text-[15px] text-muted-foreground transition-colors hover:text-foreground md:mb-8"
+      >
+        <ArrowLeft className="size-4" strokeWidth={1.75} aria-hidden />
+        {product.category.name}
+      </Link>
+
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-16">
+        {/* No entrance fade here: the first photo is the page's largest paint */}
+        <div className="lg:col-span-7">
+          <ProductGallery images={product.images} name={product.name} />
         </div>
-        {product.images.length > 1 && (
-          <div className="mt-4 grid grid-cols-4 gap-4">
-            {product.images.map((image, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedImage(index)}
-                className={`relative aspect-square overflow-hidden rounded-lg border-2 transition-all ${
-                  selectedImage === index
-                    ? "border-primary"
-                    : "border-border hover:border-muted"
-                }`}
-              >
-                <Image
-                  src={image}
-                  alt={`${product.name} - Vista ${index + 1}`}
-                  fill
-                  className="object-cover"
-                  unoptimized={isPrivateOrLocalUrl(image)}
-                />
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
 
-      {/* Product Info */}
-      <div>
-        {product.category?.name && (
-          <Badge variant="secondary" className="mb-4">
-            {product.category.name}
-          </Badge>
-        )}
+        <div className="self-start lg:sticky lg:top-28 lg:col-span-5 lg:pt-2">
+          <h1 className="heading-2 animate-enter">{product.name}</h1>
 
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          {product.name}
-        </h1>
-
-        {showPrice ? (
-          <div className="mt-4">
-            <div className="flex items-baseline gap-3">
-              <p className="text-3xl font-semibold">{formatProductPrice(product.price!)}</p>
-              {hasDiscount && (
-                <>
-                  <p className="text-xl text-muted-foreground line-through">
-                    {formatProductPrice(product.compareAtPrice!)}
-                  </p>
-                  <Badge variant="destructive">
-                    {Math.round(
-                      ((product.compareAtPrice! - product.price!) / product.compareAtPrice!) * 100,
-                    )}
-                    % OFF
-                  </Badge>
-                </>
-              )}
-            </div>
-          </div>
-        ) : null}
-
-        <div className="mt-6">
-          {product.description && product.description.length > 0 ? (
-            <div className="text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-foreground [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-foreground [&_h2]:mt-6 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-foreground [&_h3]:mt-5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-foreground [&_ol]:ml-5 [&_ol]:list-decimal [&_p]:leading-relaxed [&_ul]:ml-5 [&_ul]:list-disc">
-              <BlocksRenderer content={product.description} />
-            </div>
+          {product.award ? (
+            <p className="mt-4 flex items-center gap-2 font-medium text-primary animate-enter [--delay:60ms]">
+              <Award className="size-5 shrink-0" strokeWidth={1.75} aria-hidden />
+              {product.award}
+            </p>
           ) : null}
-        </div>
 
-        {product.size || product.color ? (
-          <div className="mt-6 flex flex-wrap gap-2">
-            {product.size ? <Badge variant="outline">Tamaño: {product.size}</Badge> : null}
-            {product.color ? <Badge variant="outline">Color: {product.color}</Badge> : null}
+          {product.description ? (
+            <p className="lead mt-6 max-w-[52ch] animate-enter [--delay:90ms]">{product.description}</p>
+          ) : null}
+
+          {product.sizes?.length || product.ingredients ? (
+            <dl className="mt-8 space-y-6 animate-enter [--delay:120ms]">
+              {product.sizes?.length ? (
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">Tamaños</dt>
+                  <dd className="mt-2.5 flex flex-wrap gap-2">
+                    {product.sizes.map((size) => (
+                      <span key={size} className="chip">
+                        {size}
+                      </span>
+                    ))}
+                  </dd>
+                </div>
+              ) : null}
+              {product.ingredients ? (
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">Ingredientes</dt>
+                  <dd className="mt-1.5 max-w-[52ch] text-lg leading-relaxed">{product.ingredients}</dd>
+                </div>
+              ) : null}
+            </dl>
+          ) : null}
+
+          <div className="mt-8 animate-enter [--delay:180ms]">
+            <InstagramCta productName={product.name} variant="inline" />
           </div>
-        ) : null}
 
-        <div className="mt-8">
-          <Button asChild size="lg" className="w-full sm:w-auto">
-            <Link href={instagramUrl} target="_blank" rel="noopener noreferrer">
-              <Instagram className="size-5" />
-              Consultar por Instagram
-            </Link>
-          </Button>
+          <ul className="mt-10 space-y-3 border-t border-border pt-8 text-[15px] text-muted-foreground animate-enter [--delay:240ms]">
+            {NOTES.map((note) => (
+              <li key={note} className="flex items-start gap-3">
+                <Check className="mt-1 size-4 shrink-0 text-primary" strokeWidth={2} aria-hidden />
+                {note}
+              </li>
+            ))}
+          </ul>
         </div>
-
-        <Card className="mt-8">
-          <CardContent className="pt-6">
-            <h3 className="mb-2 font-semibold">Información adicional</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              {showPrice ? (
-                <li>• También podés consultar disponibilidad por Instagram</li>
-              ) : (
-                <li>• Consultá disponibilidad y precio por Instagram</li>
-              )}
-              <li>• Producto artesanal hecho a mano</li>
-              <li>• Podés personalizar tamaño y color según disponibilidad</li>
-            </ul>
-          </CardContent>
-        </Card>
       </div>
-    </div>
+
+      <InstagramCta productName={product.name} variant="sticky" />
+
+      {product.related.length > 0 ? (
+        <section aria-labelledby="relacionados" className="mt-20 border-t border-border pt-14 md:mt-28 md:pt-20">
+          <div className="mb-8 flex items-end justify-between gap-4 md:mb-10">
+            <h2 id="relacionados" className="heading-2">
+              Más {product.category.name.toLowerCase()}
+            </h2>
+            <Link href={categoryHref} className="link-underline shrink-0 text-[15px] font-medium">
+              Ver todos
+            </Link>
+          </div>
+          <ProductGrid products={product.related} showCategory={false} columns={4} />
+        </section>
+      ) : null}
+    </>
   );
 }

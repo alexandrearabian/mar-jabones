@@ -1,103 +1,69 @@
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+import { Wave } from "@/components/ui/wave";
+import { mainNav, productNav, site } from "@/lib/site";
 import { SocialIcons } from "./social-icons";
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
-
-  const shopLinks = [
-    { href: "/productos", label: "Todos los productos" },
-    { href: "/productos/jabones", label: "Jabones" },
-    { href: "/productos/resinas", label: "Resinas" },
-  ];
-
-  const helpLinks = [
-    { href: "/contacto", label: "Contacto" },
-    { href: "/sobre-nosotros", label: "Sobre nosotros" },
-  ];
-
-  const socialLinks = [
-    {
-      href: "https://instagram.com/mard.jabones",
-      label: "Instagram",
-      iconName: "instagram",
-    },
-    {
-      href: "https://facebook.com/mardjabones",
-      label: "Facebook",
-      iconName: "facebook",
-    },
-  ];
-
   return (
-    <footer className="mt-auto border-t border-border/80 bg-muted/25">
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-4 sm:col-span-2 lg:col-span-1">
-            <p className="text-lg font-semibold tracking-tight">Mar D Jabones</p>
-            <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Jabones y resinas artesanales inspirados en el mar. Piezas únicas hechas a mano.
-            </p>
-            <SocialIcons links={socialLinks} />
-          </div>
+    <footer className="relative mt-auto bg-deep text-deep-foreground">
+      <Wave tone="deep" edge="top" />
 
-          <div>
-            <h4 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Tienda
-            </h4>
-            <ul className="space-y-2.5">
-              {shopLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-foreground/80 transition-colors hover:text-primary"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+      <div className="container-page grid gap-12 py-16 md:grid-cols-12 md:py-20">
+        <div className="space-y-6 md:col-span-5">
+          <div className="flex items-center gap-3">
+            <img src={site.logo} alt="" width={44} height={44} loading="lazy" className="size-11 rounded-full" />
+            <p className="font-display text-2xl font-semibold tracking-tight">{site.name}</p>
           </div>
-
-          <div>
-            <h4 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Ayuda
-            </h4>
-            <ul className="space-y-2.5">
-              {helpLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-foreground/80 transition-colors hover:text-primary"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Contacto
-            </h4>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Consultá por Instagram para pedidos y personalizaciones.
-            </p>
-            <Link
-              href="https://instagram.com/mard.jabones"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 inline-block text-sm font-medium text-primary hover:underline"
-            >
-              @mard.jabones
-            </Link>
-          </div>
+          <p className="max-w-sm leading-relaxed text-deep-foreground/70">{site.description}</p>
+          <SocialIcons />
         </div>
 
-        <div className="mt-12 border-t border-border/60 pt-8 text-center text-sm text-muted-foreground">
-          <p>© {currentYear} Mar D Jabones. Todos los derechos reservados.</p>
+        <nav aria-label="Pie de página" className="grid grid-cols-2 gap-8 md:col-span-4">
+          <FooterList title="Tienda" links={productNav} />
+          <FooterList title="Mar D" links={mainNav.slice(1)} />
+        </nav>
+
+        <div className="md:col-span-3">
+          <p className="text-sm font-medium text-deep-foreground/60">Pedidos</p>
+          <p className="mt-3 leading-relaxed text-deep-foreground/80">
+            Precios, colores y pedidos especiales: escribime por mensaje directo.
+          </p>
+          <a
+            href={site.instagram.messageUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="link-underline mt-4 inline-flex items-center gap-1.5 font-medium"
+          >
+            @{site.instagram.handle}
+            <ArrowUpRight className="size-4" strokeWidth={1.75} aria-hidden />
+          </a>
         </div>
       </div>
+
+      <div className="container-page flex flex-col gap-2 border-t border-deep-foreground/10 py-6 text-sm text-deep-foreground/55 sm:flex-row sm:justify-between">
+        <p>
+          © {new Date().getFullYear()} {site.name}
+        </p>
+        <p>Hecho a mano en {site.city}, Argentina</p>
+      </div>
     </footer>
+  );
+}
+
+function FooterList({ title, links }: { title: string; links: readonly { href: string; label: string }[] }) {
+  return (
+    <div>
+      <p className="text-sm font-medium text-deep-foreground/60">{title}</p>
+      <ul className="mt-3 space-y-2.5">
+        {links.map((link) => (
+          <li key={link.href}>
+            <Link href={link.href} className="text-deep-foreground/85 transition-colors hover:text-deep-foreground">
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

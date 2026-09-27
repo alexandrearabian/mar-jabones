@@ -1,62 +1,55 @@
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
-
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { Slot, Slottable } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import { ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive cursor-pointer",
+  "group/button inline-flex shrink-0 cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded-full font-medium outline-none transition-[background-color,color,box-shadow,transform] duration-300 ease-(--ease-out-expo) focus-visible:ring-[3px] focus-visible:ring-ring/40 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
+        primary: "bg-primary text-primary-foreground hover:bg-foreground",
+        secondary: "text-foreground ring-1 ring-inset ring-foreground/15 hover:bg-sand hover:ring-foreground/30",
+        /** On photos and deep-sea blocks */
+        light: "bg-background text-foreground hover:bg-sand",
+        outlineLight: "text-background ring-1 ring-inset ring-background/35 hover:bg-background/10 hover:ring-background/70",
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
-        "icon-sm": "size-8",
-        "icon-lg": "size-10",
+        md: "h-11 px-5 text-[15px] [&_svg]:size-[1.1em]",
+        lg: "h-13 px-7 text-base [&_svg]:size-[1.1em]",
       },
+      /** Navigational CTAs carry a trailing arrow chip */
+      arrow: { true: "gap-3", false: "" },
     },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  }
-)
+    compoundVariants: [
+      { arrow: true, size: "md", className: "pl-5 pr-1.5" },
+      { arrow: true, size: "lg", className: "pl-6 pr-2" },
+    ],
+    defaultVariants: { variant: "primary", size: "md", arrow: false },
+  },
+);
 
-function Button({
-  className,
-  variant = "default",
-  size = "default",
-  asChild = false,
-  ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }) {
-  const Comp = asChild ? Slot : "button"
+type ButtonProps = React.ComponentProps<"button"> & VariantProps<typeof buttonVariants> & { asChild?: boolean };
 
+function Button({ className, variant, size, arrow, asChild = false, children, ...props }: ButtonProps) {
+  const Comp = asChild ? Slot : "button";
   return (
-    <Comp
-      data-slot="button"
-      data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  )
+    <Comp className={cn(buttonVariants({ variant, size, arrow, className }))} {...props}>
+      <Slottable>{children}</Slottable>
+      {arrow ? (
+        <span
+          aria-hidden
+          className={cn(
+            "grid place-items-center rounded-full bg-current/15 transition-transform duration-300 ease-(--ease-out-expo) group-hover/button:translate-x-0.5",
+            size === "lg" ? "size-9" : "size-8",
+          )}
+        >
+          <ArrowRight className="size-4!" strokeWidth={1.75} />
+        </span>
+      ) : null}
+    </Comp>
+  );
 }
 
-export { Button, buttonVariants }
+export { Button };
